@@ -162,6 +162,28 @@ const PRESETS = [
 
 /* ---------- State ---------- */
 let state = loadState();
+backfillChannels();
+
+/* 舊資料相容:在「適用通路」功能之前加入的卡片,規則沒有 channels;
+ * 依範本(同卡名 + 同/相近類別)自動補上,讓「搜店家」能正確比對。 */
+function backfillChannels() {
+  let changed = false;
+  state.cards.forEach((card) => {
+    const preset = PRESETS.find((p) => p.name === card.name);
+    if (!preset) return;
+    card.rules.forEach((rule) => {
+      if (Array.isArray(rule.channels) && rule.channels.length) return;
+      const pr =
+        preset.rules.find((r) => r.category === rule.category) ||
+        preset.rules.find((r) => rule.category.includes(r.category) || r.category.includes(rule.category));
+      if (pr && Array.isArray(pr.channels) && pr.channels.length) {
+        rule.channels = pr.channels.slice();
+        changed = true;
+      }
+    });
+  });
+  if (changed) saveState();
+}
 
 function loadState() {
   try {

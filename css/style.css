@@ -393,6 +393,9 @@ body::before {
 }
 .field input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
 .field input[type="date"]::-webkit-calendar-picker-indicator { margin-left: auto; opacity: 0.6; }
+
+/* 自訂日期選擇:年/月/日 三個下拉(取代原生 date,跨裝置一致) */
+.date-selects { display: grid; grid-template-columns: 1.1fr 0.95fr 0.95fr; gap: 8px; }
 .field input:focus,
 .field select:focus {
   outline: none;

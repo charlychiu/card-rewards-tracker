@@ -132,20 +132,18 @@
             <input type="number" id="ruleCap" placeholder="留白=無上限" step="1" min="0" />
           </label>
         </div>
-        <div class="form__row">
-          <label class="field">
-            <span class="field__label">計算週期 *</span>
-            <select id="rulePeriod" required>
-              <option value="monthly">每月</option>
-              <option value="bimonthly">每雙月</option>
-              <option value="quarterly">每季</option>
-              <option value="yearly">每年</option>
-            </select>
-          </label>
-          <label class="field">
-            <span class="field__label">活動到期日</span>
-            <input type="date" id="ruleExpiry" />
-          </label>
+        <label class="field">
+          <span class="field__label">計算週期 *</span>
+          <select id="rulePeriod" required>
+            <option value="monthly">每月</option>
+            <option value="bimonthly">每雙月</option>
+            <option value="quarterly">每季</option>
+            <option value="yearly">每年</option>
+          </select>
+        </label>
+        <div class="field">
+          <span class="field__label">活動到期日</span>
+          <div id="ruleExpiry"></div>
         </div>
         <div class="field">
           <span class="field__label">適用通路(給「搜店家」推薦用,可複選)</span>
@@ -179,15 +177,13 @@
         <input type="hidden" id="txnCardId" />
         <input type="hidden" id="txnRuleId" />
         <div class="txn-context" id="txnContext"></div>
-        <div class="form__row">
-          <label class="field">
-            <span class="field__label">消費金額 (NT$) *</span>
-            <input type="number" id="txnAmount" placeholder="1000" step="1" min="0" required />
-          </label>
-          <label class="field">
-            <span class="field__label">日期 *</span>
-            <input type="date" id="txnDate" required />
-          </label>
+        <label class="field">
+          <span class="field__label">消費金額 (NT$) *</span>
+          <input type="number" id="txnAmount" placeholder="1000" step="1" min="0" required />
+        </label>
+        <div class="field">
+          <span class="field__label">日期 *</span>
+          <div id="txnDate"></div>
         </div>
         <label class="field">
           <span class="field__label">備註</span>

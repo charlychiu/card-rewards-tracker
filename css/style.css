@@ -385,6 +385,14 @@ body::before {
   color: var(--text);
 }
 .field input::placeholder { color: rgba(170, 178, 198, 0.6); }
+/* iOS Safari:date 欄位的值預設置中且會溢出,強制靠左並關閉原生外觀 */
+.field input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  text-align: left;
+}
+.field input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
+.field input[type="date"]::-webkit-calendar-picker-indicator { margin-left: auto; }
 .field input:focus,
 .field select:focus {
   outline: none;

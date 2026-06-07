@@ -674,7 +674,7 @@ function openRuleModal(cardId, rule) {
   $("#ruleRate").value = rule ? rule.rate : "";
   $("#ruleCap").value = rule && rule.cap != null ? rule.cap : "";
   $("#rulePeriod").value = rule ? rule.period : "monthly";
-  setDateValue("ruleExpiry", rule && rule.expiry ? rule.expiry : "");
+  $("#ruleExpiry").value = rule && rule.expiry ? rule.expiry : "";
   $("#ruleTier").value = rule && rule.tier ? rule.tier : "";
   $("#ruleNote").value = rule && rule.note ? rule.note : "";
   setChannelChips(rule ? ruleChannels(rule) : []);
@@ -694,7 +694,7 @@ $("#formRule").addEventListener("submit", (e) => {
   const capVal = $("#ruleCap").value.trim();
   const cap = capVal === "" ? null : Math.max(0, parseFloat(capVal));
   const period = $("#rulePeriod").value;
-  const expiry = getDateValue("ruleExpiry") || null;
+  const expiry = $("#ruleExpiry").value || null;
   const tier = $("#ruleTier").value.trim();
   const note = $("#ruleNote").value.trim();
   const channels = getChannelChips();
@@ -720,7 +720,7 @@ function openTxnModal(cardId, ruleId) {
   $("#formTxn").reset();
   $("#txnCardId").value = cardId;
   $("#txnRuleId").value = ruleId;
-  setDateValue("txnDate", todayISO());
+  $("#txnDate").value = todayISO();
   const s = computeRuleStats(card, rule);
   $("#txnContext").innerHTML =
     `<b>${esc(card.name)}</b> · ${esc(rule.category)}(${rule.rate}%,${PERIOD_LABEL[rule.period]})<br>` +
@@ -764,7 +764,7 @@ $("#formTxn").addEventListener("submit", (e) => {
   const cardId = $("#txnCardId").value;
   const ruleId = $("#txnRuleId").value;
   const amount = parseFloat($("#txnAmount").value);
-  const date = getDateValue("txnDate") || todayISO();
+  const date = $("#txnDate").value || todayISO();
   const note = $("#txnNote").value.trim();
   if (isNaN(amount) || amount <= 0) return;
   state.transactions.push({ id: uid("t"), cardId, ruleId, amount, date, note });
@@ -948,45 +948,7 @@ function toast(msg) {
   toastTimer = setTimeout(() => (el.hidden = true), 2200);
 }
 
-/* ---------- 自訂日期選擇(年/月/日 下拉,避免 iOS 原生 date 跑版/縮放) ---------- */
-function buildDateSelects(containerId, allowEmpty) {
-  const c = document.getElementById(containerId);
-  if (!c) return;
-  c.classList.add("date-selects");
-  const curY = new Date(todayISO() + "T00:00:00").getFullYear();
-  const o = (v, label) => `<option value="${v}">${label}</option>`;
-  const blank = allowEmpty ? o("", "—") : "";
-  const years = [];
-  for (let y = curY + 3; y >= curY - 5; y--) years.push(y);
-  c.innerHTML =
-    `<select class="date-y" aria-label="年">${blank}${years.map((y) => o(y, y + " 年")).join("")}</select>` +
-    `<select class="date-m" aria-label="月">${blank}${Array.from({ length: 12 }, (_, i) => o(i + 1, i + 1 + " 月")).join("")}</select>` +
-    `<select class="date-d" aria-label="日">${blank}${Array.from({ length: 31 }, (_, i) => o(i + 1, i + 1 + " 日")).join("")}</select>`;
-}
-function setDateValue(containerId, iso) {
-  const c = document.getElementById(containerId);
-  if (!c) return;
-  const y = c.querySelector(".date-y"), m = c.querySelector(".date-m"), d = c.querySelector(".date-d");
-  if (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso)) {
-    const p = iso.split("-");
-    y.value = String(Number(p[0])); m.value = String(Number(p[1])); d.value = String(Number(p[2]));
-  } else {
-    y.value = ""; m.value = ""; d.value = "";
-  }
-}
-function getDateValue(containerId) {
-  const c = document.getElementById(containerId);
-  if (!c) return "";
-  const y = c.querySelector(".date-y").value, m = c.querySelector(".date-m").value, d = c.querySelector(".date-d").value;
-  if (!y || !m || !d) return "";
-  const dim = new Date(Number(y), Number(m), 0).getDate(); // 該月天數,夾住避免 2/31 之類
-  const day = Math.min(Number(d), dim);
-  return `${y}-${String(Number(m)).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
-
 /* ---------- Init ---------- */
 buildColorPicker();
 buildChannelChips();
-buildDateSelects("txnDate", false);
-buildDateSelects("ruleExpiry", true);
 render();

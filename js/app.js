@@ -1,7 +1,7 @@
 /* =========================================================
  * Card Rewards Tracker
  * 純前端 + localStorage。記錄信用卡與回饋規則,
- * 自動計算本期(週期內)還剩多少回饋額度,並追蹤活動到期日。
+ * 搜店家推薦刷哪張卡,並計算本期(週期內)剩餘回饋額度。
  * ========================================================= */
 
 const STORAGE_KEY = "card-rewards-tracker:v1";
@@ -19,70 +19,143 @@ const PERIOD_LABEL = {
   yearly: "每年",
 };
 
+/* ---------- 通路分類(供「搜店家」比對) ---------- */
+const CHANNELS = [
+  "餐飲", "超商", "超市量販", "網購", "外送", "影音", "遊戲數位",
+  "行動支付", "加油", "交通", "藥妝", "旅遊海外", "百貨", "三井", "運動健身", "一般消費",
+];
+
+/* 通路同義詞(讓使用者打口語也能對到) */
+const CHANNEL_SYNONYMS = {
+  "咖啡": "餐飲", "飲料": "餐飲", "美食": "餐飲", "吃飯": "餐飲", "餐廳": "餐飲", "手搖": "餐飲",
+  "便利商店": "超商", "超市": "超市量販", "量販": "超市量販",
+  "購物": "網購", "網路購物": "網購", "電商": "網購",
+  "串流": "影音", "音樂": "影音",
+  "遊戲": "遊戲數位", "課金": "遊戲數位", "電玩": "遊戲數位",
+  "支付": "行動支付", "行動支付綁定": "行動支付",
+  "油": "加油", "汽油": "加油",
+  "捷運": "交通", "高鐵": "交通", "停車": "交通",
+  "旅遊": "旅遊海外", "海外": "旅遊海外", "國外": "旅遊海外", "機票": "旅遊海外", "訂房": "旅遊海外",
+  "運動": "運動健身", "健身": "運動健身",
+};
+
+/* 內建商家字典:店名(小寫) → 通路 */
+const MERCHANTS = {
+  // 餐飲 / 咖啡 / 手搖
+  "星巴克": ["餐飲"], "starbucks": ["餐飲"], "路易莎": ["餐飲"], "louisa": ["餐飲"], "cama": ["餐飲"],
+  "麥當勞": ["餐飲"], "mcdonald": ["餐飲"], "肯德基": ["餐飲"], "kfc": ["餐飲"], "摩斯": ["餐飲"], "mos": ["餐飲"],
+  "subway": ["餐飲"], "85度c": ["餐飲"], "丹堤": ["餐飲"], "怡客": ["餐飲"], "茶湯會": ["餐飲"], "五十嵐": ["餐飲"],
+  "清心": ["餐飲"], "可不可": ["餐飲"], "海底撈": ["餐飲"], "王品": ["餐飲"], "瓦城": ["餐飲"], "鼎泰豐": ["餐飲"],
+  // 超商
+  "7-11": ["超商"], "711": ["超商"], "7-eleven": ["超商"], "統一超商": ["超商"], "小七": ["超商"],
+  "全家": ["超商"], "familymart": ["超商"], "萊爾富": ["超商"], "hi-life": ["超商"], "ok超商": ["超商"], "okmart": ["超商"],
+  // 超市 / 量販
+  "全聯": ["超市量販"], "pxmart": ["超市量販"], "家樂福": ["超市量販"], "carrefour": ["超市量販"],
+  "大潤發": ["超市量販"], "愛買": ["超市量販"], "costco": ["超市量販"], "好市多": ["超市量販"],
+  "美廉社": ["超市量販"], "頂好": ["超市量販"], "大買家": ["超市量販"], "楓康": ["超市量販"],
+  // 網購
+  "蝦皮": ["網購"], "shopee": ["網購"], "momo": ["網購"], "pchome": ["網購"], "博客來": ["網購"], "books": ["網購"],
+  "露天": ["網購"], "yahoo購物": ["網購"], "東森購物": ["網購"], "酷澎": ["網購"], "coupang": ["網購"],
+  "淘寶": ["網購"], "taobao": ["網購"], "amazon": ["網購"], "生活市集": ["網購"],
+  // 外送
+  "ubereats": ["外送"], "uber eats": ["外送"], "foodpanda": ["外送"], "熊貓": ["外送"], "戶戶送": ["外送"], "deliveroo": ["外送"],
+  // 影音 / 串流
+  "netflix": ["影音"], "disney": ["影音"], "disney+": ["影音"], "spotify": ["影音"], "youtube": ["影音"],
+  "kkbox": ["影音"], "apple music": ["影音"], "hbo": ["影音"], "friday影音": ["影音"], "catchplay": ["影音"], "kktv": ["影音"],
+  // 遊戲 / 數位
+  "garena": ["遊戲數位"], "傳說對決": ["遊戲數位"], "steam": ["遊戲數位"], "google play": ["遊戲數位"],
+  "app store": ["遊戲數位"], "mycard": ["遊戲數位"], "ps store": ["遊戲數位"], "playstation": ["遊戲數位"],
+  "nintendo": ["遊戲數位"], "巴哈": ["遊戲數位"], "switch": ["遊戲數位"],
+  // 行動支付
+  "line pay": ["行動支付"], "linepay": ["行動支付"], "apple pay": ["行動支付"], "google pay": ["行動支付"],
+  "samsung pay": ["行動支付"], "街口": ["行動支付"], "jkopay": ["行動支付"], "悠遊付": ["行動支付"],
+  "全支付": ["行動支付"], "全盈": ["行動支付", "超商"], "icash": ["行動支付"], "台灣pay": ["行動支付"],
+  // 加油
+  "中油": ["加油"], "台塑": ["加油"], "加油站": ["加油"], "全國加油": ["加油"],
+  // 交通
+  "高鐵": ["交通"], "台鐵": ["交通"], "捷運": ["交通"], "mrt": ["交通"], "uber": ["交通"], "計程車": ["交通"],
+  "ubike": ["交通"], "停車": ["交通"], "etag": ["交通"], "etc": ["交通"], "國道": ["交通"],
+  // 藥妝
+  "屈臣氏": ["藥妝"], "watsons": ["藥妝"], "康是美": ["藥妝"], "cosmed": ["藥妝"], "寶雅": ["藥妝"], "poya": ["藥妝"],
+  "杏一": ["藥妝"], "丁丁": ["藥妝"], "大樹藥局": ["藥妝"],
+  // 旅遊 / 海外
+  "agoda": ["旅遊海外"], "booking": ["旅遊海外"], "expedia": ["旅遊海外"], "klook": ["旅遊海外"], "kkday": ["旅遊海外"],
+  "trip.com": ["旅遊海外"], "華航": ["旅遊海外"], "長榮航": ["旅遊海外"], "星宇": ["旅遊海外"], "機票": ["旅遊海外"],
+  "訂房": ["旅遊海外"], "飯店": ["旅遊海外"], "hotels": ["旅遊海外"],
+  // 百貨
+  "新光三越": ["百貨"], "sogo": ["百貨"], "遠百": ["百貨"], "微風": ["百貨"], "高島屋": ["百貨"],
+  "誠品": ["百貨"], "ikea": ["百貨"], "宜家": ["百貨"],
+  // 三井
+  "三井": ["三井", "百貨"], "mitsui": ["三井", "百貨"], "lalaport": ["三井", "百貨"], "outlet": ["三井", "百貨"],
+  // 運動健身
+  "迪卡儂": ["運動健身"], "decathlon": ["運動健身"], "world gym": ["運動健身"], "健身工廠": ["運動健身"],
+  "nike": ["運動健身"], "adidas": ["運動健身"],
+};
+
 /* ---------- 範本卡片(2026 上半年公開資訊整理,可能已變動,加入後請依官網調整) ---------- */
 const PRESETS = [
   {
     name: "國泰 CUBE 卡", issuer: "國泰世華", color: "#7c5cff",
     rules: [
-      { category: "玩數位", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", note: "需於 CUBE App 切換權益;3.3% 為財管貴賓,一般約 3%。指定通路無上限" },
-      { category: "樂饗購", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", note: "需切換權益;餐飲/超市等指定通路,無上限" },
-      { category: "趣旅行", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", note: "需切換權益;海外/旅遊通路,無上限" },
-      { category: "集精選", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "需切換權益;統一 2%,含充電停車通路" },
-      { category: "一般消費(非指定)", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", note: "非指定通路基本回饋(小樹點)" },
+      { category: "玩數位", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["網購", "影音", "遊戲數位", "行動支付"], note: "需於 CUBE App 切換權益;3.3% 為財管貴賓,一般約 3%。指定通路無上限" },
+      { category: "樂饗購", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["餐飲", "超市量販", "外送", "超商"], note: "需切換權益;餐飲/超市等指定通路,無上限" },
+      { category: "趣旅行", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["旅遊海外", "交通"], note: "需切換權益;海外/旅遊通路,無上限" },
+      { category: "集精選", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["百貨", "藥妝"], note: "需切換權益;統一 2%,含充電停車通路" },
+      { category: "一般消費(非指定)", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "非指定通路基本回饋(小樹點)" },
     ],
   },
   {
     name: "台新 太陽卡", issuer: "台新銀行", color: "#f97316",
     rules: [
-      { category: "Pay 著刷(行動支付)", rate: 3.8, cap: null, period: "monthly", expiry: null, note: "綁台新 Pay 最高 3.8%、LINE Pay 2.3%。太陽卡已整併為 Richart 卡,每日可切換方案 1 次" },
-      { category: "天天刷(超商/量販/交通/加油/藥妝)", rate: 3.3, cap: null, period: "monthly", expiry: null, note: "需於 Richart Life App 切換為此方案" },
-      { category: "好饗刷(餐飲/外送/訂房)", rate: 3.3, cap: null, period: "monthly", expiry: null, note: "需切換為此方案" },
-      { category: "玩旅刷(海外/航空/旅行社)", rate: 3.3, cap: null, period: "monthly", expiry: null, note: "海外消費;需切換為此方案" },
-      { category: "數趣刷(網購/影音/遊戲)", rate: 3.3, cap: null, period: "monthly", expiry: null, note: "需切換為此方案" },
+      { category: "Pay 著刷(行動支付)", rate: 3.8, cap: null, period: "monthly", expiry: null, channels: ["行動支付"], note: "綁台新 Pay 最高 3.8%、LINE Pay 2.3%。太陽卡已整併為 Richart 卡,每日可切換方案 1 次" },
+      { category: "天天刷(超商/量販/交通/加油/藥妝)", rate: 3.3, cap: null, period: "monthly", expiry: null, channels: ["超商", "超市量販", "交通", "加油", "藥妝"], note: "需於 Richart Life App 切換為此方案" },
+      { category: "好饗刷(餐飲/外送/訂房)", rate: 3.3, cap: null, period: "monthly", expiry: null, channels: ["餐飲", "外送"], note: "需切換為此方案" },
+      { category: "玩旅刷(海外/航空/旅行社)", rate: 3.3, cap: null, period: "monthly", expiry: null, channels: ["旅遊海外"], note: "海外消費;需切換為此方案" },
+      { category: "數趣刷(網購/影音/遊戲)", rate: 3.3, cap: null, period: "monthly", expiry: null, channels: ["網購", "影音", "遊戲數位"], note: "需切換為此方案" },
     ],
   },
   {
     name: "玉山 Unicard", issuer: "玉山銀行", color: "#10b981",
     rules: [
-      { category: "一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "需帳單 e 化 + 臺幣帳戶自動扣繳,否則 0.3%。回饋為 e point(1點=1元),無上限" },
-      { category: "簡單選(百大加碼)", rate: 3.0, cap: 1000, period: "monthly", expiry: "2026-06-30", note: "免申請;合計最高 3%(含一般 1%);月上限 1,000 點" },
-      { category: "任意選(自選 8 通路)", rate: 3.5, cap: 1000, period: "monthly", expiry: "2026-06-30", note: "玉山 Wallet 自選 8 家;合計最高 3.5%;月上限 1,000 點" },
-      { category: "UP 選(加碼最高)", rate: 4.5, cap: 5000, period: "monthly", expiry: "2026-06-30", note: "需任務(上月刷≥3萬或資產≥30萬)或 149 點訂閱;合計最高 4.5%;月上限 5,000 點" },
+      { category: "一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "需帳單 e 化 + 臺幣帳戶自動扣繳,否則 0.3%。回饋為 e point(1點=1元),無上限" },
+      { category: "簡單選(百大加碼)", rate: 3.0, cap: 1000, period: "monthly", expiry: "2026-06-30", channels: ["百貨", "網購", "超市量販"], note: "免申請;合計最高 3%(含一般 1%);月上限 1,000 點" },
+      { category: "任意選(自選 8 通路)", rate: 3.5, cap: 1000, period: "monthly", expiry: "2026-06-30", channels: ["餐飲", "網購", "影音", "外送"], note: "玉山 Wallet 自選 8 家;合計最高 3.5%;月上限 1,000 點。通路請依你實際自選調整" },
+      { category: "UP 選(加碼最高)", rate: 4.5, cap: 5000, period: "monthly", expiry: "2026-06-30", channels: ["餐飲", "網購", "影音", "外送", "百貨"], note: "需任務(上月刷≥3萬或資產≥30萬)或 149 點訂閱;合計最高 4.5%;月上限 5,000 點" },
     ],
   },
   {
     name: "星展 傳說對決聯名卡", issuer: "星展銀行", color: "#e11d48",
     rules: [
-      { category: "LINE Pay", rate: 10.0, cap: 1000, period: "monthly", expiry: "2026-06-30", note: "2025 申辦舊戶:10% 上限 1,000 元/月(基本 1.2% 無上限 + 加碼 8.8% 上限 1,000,約刷 11,363 元封頂),需綁帳戶自動扣繳,權益保留至 2026/6/30。2026 新戶上限僅 150 元" },
-      { category: "生活玩家精選通路(遊戲/蝦皮/外送/影音)", rate: 10.0, cap: 1000, period: "monthly", expiry: "2026-06-30", note: "舊戶權益不變,最高 10%、上限約 1,000 元/月,與 LINE Pay 分開計;2026 新戶上限 300。實際金額請對帳單確認" },
-      { category: "國內一般消費", rate: 1.2, cap: null, period: "monthly", expiry: "2026-06-30", note: "需綁帳戶自動扣繳(基本 0.2% + 加碼 1%),無上限" },
-      { category: "國外消費", rate: 2.5, cap: null, period: "monthly", expiry: "2026-06-30", note: "海外消費 2.5%,無上限" },
+      { category: "LINE Pay", rate: 10.0, cap: 1000, period: "monthly", expiry: "2026-06-30", channels: ["行動支付"], note: "2025 申辦舊戶:10% 上限 1,000 元/月(基本 1.2% 無上限 + 加碼 8.8% 上限 1,000,約刷 11,363 元封頂),需綁帳戶自動扣繳,權益保留至 2026/6/30。2026 新戶上限僅 150 元" },
+      { category: "生活玩家精選通路(遊戲/蝦皮/外送/影音)", rate: 10.0, cap: 1000, period: "monthly", expiry: "2026-06-30", channels: ["遊戲數位", "網購", "外送", "影音"], note: "舊戶權益不變,最高 10%、上限約 1,000 元/月,與 LINE Pay 分開計;2026 新戶上限 300。實際金額請對帳單確認" },
+      { category: "國內一般消費", rate: 1.2, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "需綁帳戶自動扣繳(基本 0.2% + 加碼 1%),無上限" },
+      { category: "國外消費", rate: 2.5, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["旅遊海外"], note: "海外消費 2.5%,無上限" },
     ],
   },
   {
     name: "永豐 SPORT 卡", issuer: "永豐銀行", color: "#0ea5e9",
     rules: [
-      { category: "國內外一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "基本豐點回饋(1豐點=1元),無上限" },
-      { category: "行動支付/指定通路加碼", rate: 3.0, cap: 300, period: "monthly", expiry: "2026-06-30", note: "需達運動目標 + 自動扣繳;加碼 3%,上限 300 豐點/月" },
-      { category: "運動達標加碼", rate: 1.0, cap: 50, period: "monthly", expiry: "2026-06-30", note: "大咖 App 當月燃燒 10,000 大卡或畫圈 10 次;上限 50 豐點/月" },
+      { category: "國內外一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "基本豐點回饋(1豐點=1元),無上限" },
+      { category: "行動支付/指定通路加碼", rate: 3.0, cap: 300, period: "monthly", expiry: "2026-06-30", channels: ["行動支付", "運動健身", "遊戲數位"], note: "需達運動目標 + 自動扣繳;加碼 3%,上限 300 豐點/月" },
+      { category: "運動達標加碼", rate: 1.0, cap: 50, period: "monthly", expiry: "2026-06-30", channels: ["運動健身"], note: "大咖 App 當月燃燒 10,000 大卡或畫圈 10 次;上限 50 豐點/月" },
     ],
   },
   {
     name: "永豐 三井購物卡", issuer: "永豐銀行", color: "#14b8a6",
     rules: [
-      { category: "三井館內消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "MITSUI OUTLET / LaLaport 館內最高 1%,無上限" },
-      { category: "館外餐飲 / 全盈+PAY 加碼", rate: 7.0, cap: 100, period: "bimonthly", expiry: "2026-06-30", note: "需登錄 + 電子帳單 + 自動扣繳;每期(雙月)上限 100 元" },
-      { category: "海外日韓泰實體(JCB)", rate: 6.67, cap: 2000, period: "quarterly", expiry: "2026-06-30", note: "每季滿 30,000 送 2,000(約 6.67%),每季限 1 次" },
-      { category: "館外一般消費", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", note: "館外基本回饋約 0.3%" },
+      { category: "三井館內消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["三井", "百貨"], note: "MITSUI OUTLET / LaLaport 館內最高 1%,無上限" },
+      { category: "館外餐飲 / 全盈+PAY 加碼", rate: 7.0, cap: 100, period: "bimonthly", expiry: "2026-06-30", channels: ["餐飲", "行動支付"], note: "需登錄 + 電子帳單 + 自動扣繳;每期(雙月)上限 100 元" },
+      { category: "海外日韓泰實體(JCB)", rate: 6.67, cap: 2000, period: "quarterly", expiry: "2026-06-30", channels: ["旅遊海外"], note: "每季滿 30,000 送 2,000(約 6.67%),每季限 1 次" },
+      { category: "館外一般消費", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "館外基本回饋約 0.3%" },
     ],
   },
   {
     name: "永豐 大戶卡 DAWHO", issuer: "永豐銀行", color: "#4338ca",
     rules: [
-      { category: "國內一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "所有等級基本 1%,無上限;回饋入 DAWHO 帳戶" },
-      { category: "國外消費", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "所有等級基本 2%,無上限" },
-      { category: "大戶 Plus 加碼(國內)", rate: 4.0, cap: 1000, period: "monthly", expiry: "2026-06-30", note: "需任務 + 平均財富達 100 萬等;加碼 4%(合計國內 5%),上限 1,000 元/期" },
-      { category: "悠遊卡自動加值(大戶 Plus)", rate: 5.0, cap: 500, period: "monthly", expiry: "2026-06-30", note: "大戶 Plus 5% 上限 500 元/月;大戶 3% 上限 100 元/月" },
+      { category: "國內一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "所有等級基本 1%,無上限;回饋入 DAWHO 帳戶" },
+      { category: "國外消費", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["旅遊海外"], note: "所有等級基本 2%,無上限" },
+      { category: "大戶 Plus 加碼(國內)", rate: 4.0, cap: 1000, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "需任務 + 平均財富達 100 萬等;加碼 4%(合計國內 5%),上限 1,000 元/期" },
+      { category: "悠遊卡自動加值(大戶 Plus)", rate: 5.0, cap: 500, period: "monthly", expiry: "2026-06-30", channels: ["交通"], note: "大戶 Plus 5% 上限 500 元/月;大戶 3% 上限 100 元/月" },
     ],
   },
 ];
@@ -151,6 +224,7 @@ function periodKey(period, isoDate) {
 
 function findCard(id) { return state.cards.find((c) => c.id === id); }
 function findRule(card, id) { return card && card.rules.find((r) => r.id === id); }
+function ruleChannels(rule) { return Array.isArray(rule.channels) ? rule.channels : []; }
 
 /* ---------- Core computation ---------- */
 function computeRuleStats(card, rule) {
@@ -171,14 +245,60 @@ function computeRuleStats(card, rule) {
   return { spend, rawReward, earned, remaining, pct, isFull, hasCap, cap, remainingSpend, count: txns.length };
 }
 
+/* ---------- 搜店家 → 推薦刷哪張卡 ---------- */
+function resolveChannels(qRaw) {
+  const q = (qRaw || "").trim().toLowerCase();
+  if (!q) return [];
+  const set = new Set();
+  // 直接對到通路名稱
+  CHANNELS.forEach((c) => {
+    const cl = c.toLowerCase();
+    if (cl.includes(q) || q.includes(cl)) set.add(c);
+  });
+  // 同義詞
+  Object.keys(CHANNEL_SYNONYMS).forEach((k) => {
+    if (q.includes(k.toLowerCase())) set.add(CHANNEL_SYNONYMS[k]);
+  });
+  // 商家字典
+  Object.keys(MERCHANTS).forEach((name) => {
+    if (name.includes(q) || q.includes(name)) MERCHANTS[name].forEach((c) => set.add(c));
+  });
+  return [...set];
+}
+
+function ruleAppliesToChannels(rule, channels) {
+  const rc = ruleChannels(rule);
+  if (rc.includes("一般消費")) return true; // 一般消費永遠適用(保底)
+  return rc.some((c) => channels.includes(c));
+}
+
+function recommendForCard(card, channels) {
+  const candidates = card.rules
+    .filter((r) => ruleAppliesToChannels(r, channels))
+    .map((r) => {
+      const stats = computeRuleStats(card, r);
+      const expired = !!(r.expiry && daysUntil(r.expiry) < 0);
+      const maxed = stats.hasCap && stats.remaining <= 0;
+      return { rule: r, stats, expired, maxed, rate: Number(r.rate) || 0 };
+    })
+    .filter((x) => !x.expired);
+  if (!candidates.length) return null;
+  const usable = candidates.filter((x) => !x.maxed);
+  const pool = usable.length ? usable : candidates;
+  pool.sort((a, b) => b.rate - a.rate);
+  return pool[0];
+}
+
 /* ---------- Render ---------- */
 const $ = (sel) => document.querySelector(sel);
 const cardsContainer = $("#cardsContainer");
+const searchInput = $("#merchantSearch");
 
 function render() {
   const hasCards = state.cards.length > 0;
   $("#emptyState").style.display = hasCards ? "none" : "block";
   $("#summary").hidden = !hasCards;
+  $("#searchSection").hidden = !hasCards;
   $("#recentSection").hidden = state.transactions.length === 0;
 
   // Summary(已過期的規則不計入剩餘可賺額度)
@@ -198,6 +318,7 @@ function render() {
 
   cardsContainer.innerHTML = state.cards.map(renderCard).join("");
   renderRecent();
+  renderSearch();
 }
 
 function renderCard(card) {
@@ -280,6 +401,61 @@ function renderRule(card, rule) {
     </div>`;
 }
 
+const MEDALS = ["🥇", "🥈", "🥉"];
+
+function renderSearch() {
+  const box = $("#searchResults");
+  const q = searchInput ? searchInput.value : "";
+  if (!q.trim()) { box.hidden = true; box.innerHTML = ""; return; }
+  box.hidden = false;
+
+  if (!state.cards.length) {
+    box.innerHTML = `<p class="search__empty">先新增或從範本加入卡片,才能推薦刷哪張。</p>`;
+    return;
+  }
+
+  let channels = resolveChannels(q);
+  const unmatched = channels.length === 0;
+  if (unmatched) channels = ["一般消費"];
+
+  const recs = state.cards
+    .map((card) => ({ card, best: recommendForCard(card, channels) }))
+    .filter((x) => x.best)
+    .sort((a, b) => b.best.rate - a.best.rate);
+
+  const chipsHtml = channels.map((c) => `<span class="search__chip">${esc(c)}</span>`).join(" ");
+  const head = `<div class="search__channels">對應通路:${chipsHtml}` +
+    (unmatched ? ` <span class="search__hint">(未對到特定通路,以一般消費計)</span>` : "") +
+    `</div>`;
+
+  if (!recs.length) {
+    box.innerHTML = head + `<p class="search__empty">你的卡片裡沒有符合此通路的回饋規則。</p>`;
+    return;
+  }
+
+  box.innerHTML = head + recs.map((r, i) => renderRec(r, i)).join("");
+}
+
+function renderRec(r, i) {
+  const { card, best } = r;
+  const medal = i < 3 ? MEDALS[i] : "•";
+  const s = best.stats;
+  let extra = "";
+  if (best.maxed) extra = ` · <span style="color:var(--warn)">本期額度已滿</span>`;
+  else if (s.hasCap) extra = ` · 剩 ${fmtTWD(s.remaining)}`;
+  return `
+    <div class="rec ${best.maxed ? "is-maxed" : ""}">
+      <span class="rec__medal">${medal}</span>
+      <span class="rec__dot" style="background:${card.color || "#6d72f6"}"></span>
+      <div class="rec__main">
+        <div class="rec__title">${esc(card.name)}</div>
+        <div class="rec__sub">${esc(best.rule.category)}${extra}</div>
+      </div>
+      <span class="rec__rate">${best.rate}%</span>
+      <button class="btn btn--primary btn--sm" data-action="rec-txn" data-card="${card.id}" data-rule="${best.rule.id}">記一筆</button>
+    </div>`;
+}
+
 function renderRecent() {
   const list = $("#recentList");
   const recent = [...state.transactions]
@@ -345,6 +521,27 @@ function markColor(color) {
   });
 }
 
+/* ----- Channel chips (rule form) ----- */
+function buildChannelChips() {
+  const wrap = $("#ruleChannels");
+  wrap.innerHTML = CHANNELS.map(
+    (c) => `<button type="button" class="chip" data-channel="${c}">${c}</button>`
+  ).join("");
+  wrap.addEventListener("click", (e) => {
+    const b = e.target.closest(".chip");
+    if (b) b.classList.toggle("selected");
+  });
+}
+function setChannelChips(channels) {
+  const sel = new Set(channels || []);
+  document.querySelectorAll("#ruleChannels .chip").forEach((b) => {
+    b.classList.toggle("selected", sel.has(b.dataset.channel));
+  });
+}
+function getChannelChips() {
+  return [...document.querySelectorAll("#ruleChannels .chip.selected")].map((b) => b.dataset.channel);
+}
+
 /* ----- Card modal ----- */
 function openCardModal(card) {
   $("#formCard").reset();
@@ -388,6 +585,7 @@ function openRuleModal(cardId, rule) {
   $("#rulePeriod").value = rule ? rule.period : "monthly";
   $("#ruleExpiry").value = rule && rule.expiry ? rule.expiry : "";
   $("#ruleNote").value = rule && rule.note ? rule.note : "";
+  setChannelChips(rule ? ruleChannels(rule) : []);
   $("#modalRuleTitle").textContent = rule ? "編輯回饋規則" : "新增回饋規則";
   openModal("modalRule");
   $("#ruleCategory").focus();
@@ -406,13 +604,14 @@ $("#formRule").addEventListener("submit", (e) => {
   const period = $("#rulePeriod").value;
   const expiry = $("#ruleExpiry").value || null;
   const note = $("#ruleNote").value.trim();
+  const channels = getChannelChips();
   if (!category || isNaN(rate)) return;
 
   if (ruleId) {
     const rule = findRule(card, ruleId);
-    Object.assign(rule, { category, rate, cap, period, expiry, note });
+    Object.assign(rule, { category, rate, cap, period, expiry, note, channels });
   } else {
-    card.rules.push({ id: uid("r"), category, rate, cap, period, expiry, note });
+    card.rules.push({ id: uid("r"), category, rate, cap, period, expiry, note, channels });
   }
   saveState();
   render();
@@ -513,6 +712,7 @@ function addPreset(p) {
       period: r.period,
       expiry: r.expiry ?? null,
       note: r.note || "",
+      channels: Array.isArray(r.channels) ? r.channels.slice() : [],
     })),
   });
   saveState();
@@ -565,6 +765,12 @@ cardsContainer.addEventListener("click", (e) => {
   }
 });
 
+$("#searchResults").addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-action='rec-txn']");
+  if (!btn) return;
+  openTxnModal(btn.dataset.card, btn.dataset.rule);
+});
+
 $("#recentList").addEventListener("click", (e) => {
   const btn = e.target.closest("[data-action='delete-txn']");
   if (!btn) return;
@@ -572,6 +778,9 @@ $("#recentList").addEventListener("click", (e) => {
   state.transactions = state.transactions.filter((t) => t.id !== txnId);
   saveState(); render(); toast("已刪除紀錄");
 });
+
+/* ---------- Search input ---------- */
+searchInput.addEventListener("input", renderSearch);
 
 /* ---------- Top bar actions ---------- */
 $("#btnAddCard").addEventListener("click", () => openCardModal(null));
@@ -645,4 +854,5 @@ function toast(msg) {
 
 /* ---------- Init ---------- */
 buildColorPicker();
+buildChannelChips();
 render();

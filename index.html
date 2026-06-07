@@ -92,6 +92,10 @@
           <span class="field__label">發卡銀行</span>
           <input type="text" id="cardIssuer" placeholder="例如:國泰世華(可留白)" maxlength="40" />
         </label>
+        <div class="field" id="cardTierField" hidden>
+          <span class="field__label">目前方案 / 等級(只算選中的這層)</span>
+          <div class="chip-picker" id="cardTiers"></div>
+        </div>
         <div class="field">
           <span class="field__label">卡片顏色</span>
           <div class="color-picker" id="colorPicker"></div>
@@ -147,6 +151,10 @@
           <span class="field__label">適用通路(給「搜店家」推薦用,可複選)</span>
           <div class="chip-picker" id="ruleChannels"></div>
         </div>
+        <label class="field">
+          <span class="field__label">所屬方案 / 等級(留白 = 一律生效)</span>
+          <input type="text" id="ruleTier" placeholder="例如:玩數位 / 大戶 / 任意選(可留白)" maxlength="30" />
+        </label>
         <label class="field">
           <span class="field__label">備註</span>
           <input type="text" id="ruleNote" placeholder="例如:需登錄、需綁定數位帳戶(可留白)" maxlength="120" />

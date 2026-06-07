@@ -1,7 +1,7 @@
 /* =========================================================
  * Card Rewards Tracker
- * 純前端 + localStorage。記錄信用卡與回饋規則,
- * 搜店家推薦刷哪張卡,並計算本期(週期內)剩餘回饋額度。
+ * 純前端 + localStorage。記錄信用卡與回饋規則,搜店家推薦刷哪張卡,
+ * 依「目前方案/等級」只計生效規則,並計算本期剩餘回饋額度。
  * ========================================================= */
 
 const STORAGE_KEY = "card-rewards-tracker:v1";
@@ -92,16 +92,17 @@ const MERCHANTS = {
   "nike": ["運動健身"], "adidas": ["運動健身"],
 };
 
-/* ---------- 範本卡片(2026 上半年公開資訊整理,可能已變動,加入後請依官網調整) ---------- */
+/* ---------- 範本卡片(2026 上半年公開資訊整理,可能已變動,加入後請依官網調整) ----------
+ * tier:該規則所屬「方案/等級」,空 = 一律生效;defaultTier:加入時預設選的等級 */
 const PRESETS = [
   {
-    name: "國泰 CUBE 卡", issuer: "國泰世華", color: "#7c5cff",
+    name: "國泰 CUBE 卡", issuer: "國泰世華", color: "#7c5cff", defaultTier: "玩數位",
     rules: [
-      { category: "玩數位", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["網購", "影音", "遊戲數位", "行動支付"], note: "需於 CUBE App 切換權益;3.3% 為財管貴賓,一般約 3%。指定通路無上限" },
-      { category: "樂饗購", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["餐飲", "超市量販", "外送", "超商"], note: "需切換權益;餐飲/超市等指定通路,無上限" },
-      { category: "趣旅行", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["旅遊海外", "交通"], note: "需切換權益;海外/旅遊通路,無上限" },
-      { category: "集精選", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["百貨", "藥妝"], note: "需切換權益;統一 2%,含充電停車通路" },
-      { category: "一般消費(非指定)", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "非指定通路基本回饋(小樹點)" },
+      { category: "玩數位", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "玩數位", channels: ["網購", "影音", "遊戲數位", "行動支付"], note: "需於 CUBE App 切換權益;3.3% 為財管貴賓,一般約 3%。指定通路無上限" },
+      { category: "樂饗購", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "樂饗購", channels: ["餐飲", "超市量販", "外送", "超商"], note: "需切換權益;餐飲/超市等指定通路,無上限" },
+      { category: "趣旅行", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "趣旅行", channels: ["旅遊海外", "交通"], note: "需切換權益;海外/旅遊通路,無上限" },
+      { category: "集精選", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "集精選", channels: ["百貨", "藥妝"], note: "需切換權益;統一 2%,含充電停車通路" },
+      { category: "一般消費(非指定)", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "", channels: ["一般消費"], note: "非指定通路基本回饋(小樹點),不分方案皆有" },
     ],
   },
   {
@@ -115,12 +116,12 @@ const PRESETS = [
     ],
   },
   {
-    name: "玉山 Unicard", issuer: "玉山銀行", color: "#10b981",
+    name: "玉山 Unicard", issuer: "玉山銀行", color: "#10b981", defaultTier: "任意選",
     rules: [
-      { category: "一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "需帳單 e 化 + 臺幣帳戶自動扣繳,否則 0.3%。回饋為 e point(1點=1元),無上限" },
-      { category: "簡單選(百大加碼)", rate: 3.0, cap: 1000, period: "monthly", expiry: "2026-06-30", channels: ["百貨", "網購", "超市量販"], note: "免申請;合計最高 3%(含一般 1%);月上限 1,000 點" },
-      { category: "任意選(自選 8 通路)", rate: 3.5, cap: 1000, period: "monthly", expiry: "2026-06-30", channels: ["餐飲", "網購", "影音", "外送"], note: "玉山 Wallet 自選 8 家;合計最高 3.5%;月上限 1,000 點。通路請依你實際自選調整" },
-      { category: "UP 選(加碼最高)", rate: 4.5, cap: 5000, period: "monthly", expiry: "2026-06-30", channels: ["餐飲", "網購", "影音", "外送", "百貨"], note: "需任務(上月刷≥3萬或資產≥30萬)或 149 點訂閱;合計最高 4.5%;月上限 5,000 點" },
+      { category: "一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "", channels: ["一般消費"], note: "需帳單 e 化 + 臺幣帳戶自動扣繳,否則 0.3%。回饋為 e point(1點=1元),無上限。各方案皆有" },
+      { category: "簡單選(百大加碼)", rate: 3.0, cap: 1000, period: "monthly", expiry: "2026-06-30", tier: "簡單選", channels: ["百貨", "網購", "超市量販"], note: "免申請;合計最高 3%(含一般 1%);月上限 1,000 點" },
+      { category: "任意選(自選 8 通路)", rate: 3.5, cap: 1000, period: "monthly", expiry: "2026-06-30", tier: "任意選", channels: ["餐飲", "網購", "影音", "外送"], note: "玉山 Wallet 自選 8 家;合計最高 3.5%;月上限 1,000 點。通路請依你實際自選調整" },
+      { category: "UP 選(加碼最高)", rate: 4.5, cap: 5000, period: "monthly", expiry: "2026-06-30", tier: "UP 選", channels: ["餐飲", "網購", "影音", "外送", "百貨"], note: "需任務(上月刷≥3萬或資產≥30萬)或 149 點訂閱;合計最高 4.5%;月上限 5,000 點" },
     ],
   },
   {
@@ -136,7 +137,7 @@ const PRESETS = [
     name: "永豐 SPORT 卡", issuer: "永豐銀行", color: "#0ea5e9",
     rules: [
       { category: "國內外一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "基本豐點回饋(1豐點=1元),無上限" },
-      { category: "行動支付/指定通路加碼", rate: 3.0, cap: 300, period: "monthly", expiry: "2026-06-30", channels: ["行動支付", "運動健身", "遊戲數位"], note: "需達運動目標 + 自動扣繳;加碼 3%,上限 300 豐點/月" },
+      { category: "行動支付/指定通路加碼", rate: 3.0, cap: 300, period: "monthly", expiry: "2026-06-30", channels: ["行動支付", "運動健身", "遊戲數位"], note: "需達運動目標 + 自動扣繳;加碼 3%(含 Apple/Google/Samsung/Garmin Pay),上限 300 豐點/月。可疊基本+運動約 5%" },
       { category: "運動達標加碼", rate: 1.0, cap: 50, period: "monthly", expiry: "2026-06-30", channels: ["運動健身"], note: "大咖 App 當月燃燒 10,000 大卡或畫圈 10 次;上限 50 豐點/月" },
     ],
   },
@@ -150,34 +151,41 @@ const PRESETS = [
     ],
   },
   {
-    name: "永豐 大戶卡 DAWHO", issuer: "永豐銀行", color: "#4338ca",
+    name: "永豐 大戶卡 DAWHO", issuer: "永豐銀行", color: "#4338ca", defaultTier: "大戶",
     rules: [
-      { category: "國內一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "所有等級基本 1%,無上限;回饋入 DAWHO 帳戶" },
-      { category: "國外消費", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["旅遊海外"], note: "所有等級基本 2%,無上限" },
-      { category: "大戶 Plus 加碼(國內)", rate: 4.0, cap: 1000, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "需任務 + 平均財富達 100 萬等;加碼 4%(合計國內 5%),上限 1,000 元/期" },
-      { category: "悠遊卡自動加值(大戶 Plus)", rate: 5.0, cap: 500, period: "monthly", expiry: "2026-06-30", channels: ["交通"], note: "大戶 Plus 5% 上限 500 元/月;大戶 3% 上限 100 元/月" },
+      { category: "國內消費(大大)", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大大", channels: ["一般消費"], note: "2026 全通路無腦卡;大大等級國內 1%,無上限" },
+      { category: "國內消費(大戶)", rate: 3.5, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶", channels: ["一般消費"], note: "大戶等級國內 3.5%,無上限(需符合大戶等級條件)" },
+      { category: "國內消費(大戶 Plus)", rate: 5.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶 Plus", channels: ["一般消費"], note: "大戶 Plus 等級國內 5%,無上限(需符合 Plus 條件,如平均財富達 100 萬等)" },
+      { category: "國外消費(大大)", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大大", channels: ["旅遊海外"], note: "大大等級國外 2%,無上限" },
+      { category: "國外消費(大戶)", rate: 4.5, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶", channels: ["旅遊海外"], note: "大戶等級國外 4.5%,無上限" },
+      { category: "國外消費(大戶 Plus)", rate: 6.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶 Plus", channels: ["旅遊海外"], note: "大戶 Plus 等級國外 6%,無上限" },
+      { category: "悠遊卡自動加值", rate: 5.0, cap: 500, period: "monthly", expiry: "2026-06-30", tier: "大戶 Plus", channels: ["交通"], note: "大戶 Plus 5% 上限 500 元/月(大戶等級為 3%、上限 100 元)" },
     ],
   },
 ];
 
 /* ---------- State ---------- */
 let state = loadState();
-backfillChannels();
+backfillFromPresets();
 
-/* 舊資料相容:在「適用通路」功能之前加入的卡片,規則沒有 channels;
- * 依範本(同卡名 + 同/相近類別)自動補上,讓「搜店家」能正確比對。 */
-function backfillChannels() {
+/* 舊資料相容:在「適用通路 / 方案等級」功能之前加入的卡片,規則缺 channels / tier;
+ * 依範本(同卡名 + 同或相近類別)自動補上(不更動 activeTier,避免突然隱藏規則)。 */
+function backfillFromPresets() {
   let changed = false;
   state.cards.forEach((card) => {
     const preset = PRESETS.find((p) => p.name === card.name);
     if (!preset) return;
     card.rules.forEach((rule) => {
-      if (Array.isArray(rule.channels) && rule.channels.length) return;
       const pr =
         preset.rules.find((r) => r.category === rule.category) ||
         preset.rules.find((r) => rule.category.includes(r.category) || r.category.includes(rule.category));
-      if (pr && Array.isArray(pr.channels) && pr.channels.length) {
+      if (!pr) return;
+      if ((!Array.isArray(rule.channels) || !rule.channels.length) && Array.isArray(pr.channels) && pr.channels.length) {
         rule.channels = pr.channels.slice();
+        changed = true;
+      }
+      if (rule.tier == null && pr.tier != null) {
+        rule.tier = pr.tier;
         changed = true;
       }
     });
@@ -247,6 +255,14 @@ function periodKey(period, isoDate) {
 function findCard(id) { return state.cards.find((c) => c.id === id); }
 function findRule(card, id) { return card && card.rules.find((r) => r.id === id); }
 function ruleChannels(rule) { return Array.isArray(rule.channels) ? rule.channels : []; }
+function cardTierList(card) { return [...new Set((card && card.rules ? card.rules : []).map((r) => r.tier).filter(Boolean))]; }
+
+/* 規則是否「目前生效」:未標 tier 一律生效;卡片未選等級則全顯示(向後相容);否則需符合選中的等級 */
+function ruleActive(card, rule) {
+  if (!rule.tier) return true;
+  if (!card.activeTier) return true;
+  return rule.tier === card.activeTier;
+}
 
 /* ---------- Core computation ---------- */
 function computeRuleStats(card, rule) {
@@ -272,16 +288,13 @@ function resolveChannels(qRaw) {
   const q = (qRaw || "").trim().toLowerCase();
   if (!q) return [];
   const set = new Set();
-  // 直接對到通路名稱
   CHANNELS.forEach((c) => {
     const cl = c.toLowerCase();
     if (cl.includes(q) || q.includes(cl)) set.add(c);
   });
-  // 同義詞
   Object.keys(CHANNEL_SYNONYMS).forEach((k) => {
     if (q.includes(k.toLowerCase())) set.add(CHANNEL_SYNONYMS[k]);
   });
-  // 商家字典
   Object.keys(MERCHANTS).forEach((name) => {
     if (name.includes(q) || q.includes(name)) MERCHANTS[name].forEach((c) => set.add(c));
   });
@@ -296,7 +309,7 @@ function ruleAppliesToChannels(rule, channels) {
 
 function recommendForCard(card, channels) {
   const candidates = card.rules
-    .filter((r) => ruleAppliesToChannels(r, channels))
+    .filter((r) => ruleActive(card, r) && ruleAppliesToChannels(r, channels))
     .map((r) => {
       const stats = computeRuleStats(card, r);
       const expired = !!(r.expiry && daysUntil(r.expiry) < 0);
@@ -323,11 +336,12 @@ function render() {
   $("#searchSection").hidden = !hasCards;
   $("#recentSection").hidden = state.transactions.length === 0;
 
-  // Summary(已過期的規則不計入剩餘可賺額度)
+  // Summary(只計目前生效、未過期規則的剩餘額度)
   let totalEarned = 0;
   let totalRemaining = 0;
   state.cards.forEach((card) => {
     card.rules.forEach((rule) => {
+      if (!ruleActive(card, rule)) return;
       const s = computeRuleStats(card, rule);
       const expired = rule.expiry && daysUntil(rule.expiry) < 0;
       totalEarned += s.earned;
@@ -345,9 +359,15 @@ function render() {
 
 function renderCard(card) {
   const color = card.color || "#4f46e5";
-  const rulesHtml = card.rules.length
-    ? card.rules.map((rule) => renderRule(card, rule)).join("")
-    : `<p class="rule-empty">尚未設定回饋規則。</p>`;
+  const tiers = cardTierList(card);
+  const tierBadge = tiers.length
+    ? `<div class="card__tier">方案/等級:<b>${esc(card.activeTier || "全部顯示")}</b>` +
+      `<button class="card__tier-btn" data-action="edit-card" data-card="${card.id}">變更</button></div>`
+    : "";
+  const activeRules = card.rules.filter((r) => ruleActive(card, r));
+  const rulesHtml = activeRules.length
+    ? activeRules.map((rule) => renderRule(card, rule)).join("")
+    : `<p class="rule-empty">此方案/等級沒有可顯示的規則。</p>`;
 
   return `
     <article class="card" style="--card-color:${color}">
@@ -360,6 +380,7 @@ function renderCard(card) {
         ${card.issuer ? `<p class="card__issuer">${esc(card.issuer)}</p>` : ""}
       </div>
       <div class="card__body">
+        ${tierBadge}
         ${rulesHtml}
       </div>
       <div class="card__foot">
@@ -451,7 +472,7 @@ function renderSearch() {
     `</div>`;
 
   if (!recs.length) {
-    box.innerHTML = head + `<p class="search__empty">你的卡片裡沒有符合此通路的回饋規則。</p>`;
+    box.innerHTML = head + `<p class="search__empty">你的卡片(目前方案)裡沒有符合此通路的回饋規則。</p>`;
     return;
   }
 
@@ -564,6 +585,34 @@ function getChannelChips() {
   return [...document.querySelectorAll("#ruleChannels .chip.selected")].map((b) => b.dataset.channel);
 }
 
+/* ----- Card tier chips (single-select) ----- */
+let cardTierOptions = [];
+function buildCardTiers(card) {
+  cardTierOptions = card ? cardTierList(card) : [];
+  const field = $("#cardTierField");
+  const wrap = $("#cardTiers");
+  if (!cardTierOptions.length) { field.hidden = true; wrap.innerHTML = ""; return; }
+  field.hidden = false;
+  const active = card.activeTier || "";
+  wrap.innerHTML =
+    `<button type="button" class="chip${active === "" ? " selected" : ""}" data-i="-1">全部顯示</button>` +
+    cardTierOptions.map((t, i) =>
+      `<button type="button" class="chip${t === active ? " selected" : ""}" data-i="${i}">${esc(t)}</button>`
+    ).join("");
+}
+function getCardTier() {
+  const el = document.querySelector("#cardTiers .chip.selected");
+  if (!el) return "";
+  const i = Number(el.dataset.i);
+  return i < 0 ? "" : (cardTierOptions[i] || "");
+}
+$("#cardTiers").addEventListener("click", (e) => {
+  const b = e.target.closest(".chip");
+  if (!b) return;
+  document.querySelectorAll("#cardTiers .chip").forEach((x) => x.classList.remove("selected"));
+  b.classList.add("selected");
+});
+
 /* ----- Card modal ----- */
 function openCardModal(card) {
   $("#formCard").reset();
@@ -572,6 +621,7 @@ function openCardModal(card) {
   $("#cardIssuer").value = card ? card.issuer || "" : "";
   $("#modalCardTitle").textContent = card ? "編輯卡片" : "新增卡片";
   markColor(card ? card.color || PALETTE[0] : PALETTE[0]);
+  buildCardTiers(card);
   openModal("modalCard");
   $("#cardName").focus();
 }
@@ -582,13 +632,15 @@ $("#formCard").addEventListener("submit", (e) => {
   const name = $("#cardName").value.trim();
   if (!name) return;
   const issuer = $("#cardIssuer").value.trim();
+  const activeTier = getCardTier();
   if (id) {
     const card = findCard(id);
     card.name = name;
     card.issuer = issuer;
     card.color = selectedColor;
+    card.activeTier = activeTier;
   } else {
-    state.cards.push({ id: uid("c"), name, issuer, color: selectedColor, rules: [] });
+    state.cards.push({ id: uid("c"), name, issuer, color: selectedColor, activeTier, rules: [] });
   }
   saveState();
   render();
@@ -606,6 +658,7 @@ function openRuleModal(cardId, rule) {
   $("#ruleCap").value = rule && rule.cap != null ? rule.cap : "";
   $("#rulePeriod").value = rule ? rule.period : "monthly";
   $("#ruleExpiry").value = rule && rule.expiry ? rule.expiry : "";
+  $("#ruleTier").value = rule && rule.tier ? rule.tier : "";
   $("#ruleNote").value = rule && rule.note ? rule.note : "";
   setChannelChips(rule ? ruleChannels(rule) : []);
   $("#modalRuleTitle").textContent = rule ? "編輯回饋規則" : "新增回饋規則";
@@ -625,15 +678,16 @@ $("#formRule").addEventListener("submit", (e) => {
   const cap = capVal === "" ? null : Math.max(0, parseFloat(capVal));
   const period = $("#rulePeriod").value;
   const expiry = $("#ruleExpiry").value || null;
+  const tier = $("#ruleTier").value.trim();
   const note = $("#ruleNote").value.trim();
   const channels = getChannelChips();
   if (!category || isNaN(rate)) return;
 
   if (ruleId) {
     const rule = findRule(card, ruleId);
-    Object.assign(rule, { category, rate, cap, period, expiry, note, channels });
+    Object.assign(rule, { category, rate, cap, period, expiry, tier, note, channels });
   } else {
-    card.rules.push({ id: uid("r"), category, rate, cap, period, expiry, note, channels });
+    card.rules.push({ id: uid("r"), category, rate, cap, period, expiry, tier, note, channels });
   }
   saveState();
   render();
@@ -726,6 +780,7 @@ function addPreset(p) {
     name: p.name,
     issuer: p.issuer,
     color: p.color,
+    activeTier: p.defaultTier || "",
     rules: p.rules.map((r) => ({
       id: uid("r"),
       category: r.category,
@@ -733,6 +788,7 @@ function addPreset(p) {
       cap: r.cap ?? null,
       period: r.period,
       expiry: r.expiry ?? null,
+      tier: r.tier || "",
       note: r.note || "",
       channels: Array.isArray(r.channels) ? r.channels.slice() : [],
     })),
@@ -740,7 +796,7 @@ function addPreset(p) {
   saveState();
   render();
   renderPresets();
-  toast(`已加入「${p.name}」`);
+  toast(`已加入「${p.name}」` + (p.defaultTier ? `(等級:${p.defaultTier},可在卡片設定變更)` : ""));
 }
 
 function openPresets() {
@@ -843,6 +899,7 @@ $("#importFile").addEventListener("change", (e) => {
       }
       if (!confirm("匯入會覆蓋目前所有資料,確定?")) return;
       state = { cards: data.cards, transactions: data.transactions };
+      backfillFromPresets();
       saveState(); render(); toast("已匯入資料");
     } catch (err) {
       toast("⚠️ 匯入失敗:檔案格式不正確");

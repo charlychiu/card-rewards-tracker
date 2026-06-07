@@ -547,6 +547,31 @@ body::before {
 .rec.is-maxed .rec__rate { color: var(--warn); }
 .rec.is-maxed { opacity: 0.85; }
 
+/* ===== Card tier badge ===== */
+.card__tier {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.card__tier b { color: var(--text); }
+.card__tier-btn {
+  margin-left: auto;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
+  color: var(--text-dim);
+  border-radius: 14px;
+  padding: 2px 9px;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+}
+.card__tier-btn:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.28); }
+
 /* ===== Channel chip picker (rule form) ===== */
 .chip-picker { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {

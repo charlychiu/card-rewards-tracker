@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>信用卡回饋追蹤 · Card Rewards Tracker</title>
   <meta name="description" content="記錄你擁有的信用卡與回饋規則,搜尋店家立刻知道刷哪張卡最賺,並用 localStorage 計算本期剩餘回饋額度。" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/themes/dark.css" />
   <link rel="stylesheet" href="css/style.css?v=2" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💳</text></svg>" />
 </head>
@@ -143,7 +144,7 @@
         </label>
         <div class="field">
           <span class="field__label">活動到期日</span>
-          <input type="date" id="ruleExpiry" />
+          <input type="text" id="ruleExpiry" placeholder="可留白" readonly />
         </div>
         <div class="field">
           <span class="field__label">適用通路(給「搜店家」推薦用,可複選)</span>
@@ -183,7 +184,7 @@
         </label>
         <div class="field">
           <span class="field__label">日期 *</span>
-          <input type="date" id="txnDate" required />
+          <input type="text" id="txnDate" placeholder="選擇日期" required readonly />
         </div>
         <label class="field">
           <span class="field__label">備註</span>
@@ -214,6 +215,7 @@
 
   <div class="toast" id="toast" hidden></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13"></script>
   <script src="js/app.js?v=2"></script>
 </body>
 </html>

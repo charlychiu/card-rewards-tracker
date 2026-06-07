@@ -674,7 +674,7 @@ function openRuleModal(cardId, rule) {
   $("#ruleRate").value = rule ? rule.rate : "";
   $("#ruleCap").value = rule && rule.cap != null ? rule.cap : "";
   $("#rulePeriod").value = rule ? rule.period : "monthly";
-  $("#ruleExpiry").value = rule && rule.expiry ? rule.expiry : "";
+  setRuleExpiry(rule && rule.expiry ? rule.expiry : "");
   $("#ruleTier").value = rule && rule.tier ? rule.tier : "";
   $("#ruleNote").value = rule && rule.note ? rule.note : "";
   setChannelChips(rule ? ruleChannels(rule) : []);
@@ -720,7 +720,7 @@ function openTxnModal(cardId, ruleId) {
   $("#formTxn").reset();
   $("#txnCardId").value = cardId;
   $("#txnRuleId").value = ruleId;
-  $("#txnDate").value = todayISO();
+  setTxnDate(todayISO());
   const s = computeRuleStats(card, rule);
   $("#txnContext").innerHTML =
     `<b>${esc(card.name)}</b> · ${esc(rule.category)}(${rule.rate}%,${PERIOD_LABEL[rule.period]})<br>` +
@@ -948,7 +948,25 @@ function toast(msg) {
   toastTimer = setTimeout(() => (el.hidden = true), 2200);
 }
 
+/* ---------- 日期選擇器(Flatpickr,跨裝置一致,取代原生 date) ---------- */
+let fpTxnDate = null, fpRuleExpiry = null;
+function initDatePickers() {
+  if (!window.flatpickr) return; // CDN 載入失敗時退回純文字輸入
+  const opts = { dateFormat: "Y-m-d", disableMobile: true, allowInput: false };
+  fpTxnDate = flatpickr("#txnDate", opts);
+  fpRuleExpiry = flatpickr("#ruleExpiry", opts);
+}
+function setTxnDate(iso) {
+  if (fpTxnDate) fpTxnDate.setDate(iso || "", false);
+  else $("#txnDate").value = iso || "";
+}
+function setRuleExpiry(iso) {
+  if (fpRuleExpiry) { if (iso) fpRuleExpiry.setDate(iso, false); else fpRuleExpiry.clear(); }
+  else $("#ruleExpiry").value = iso || "";
+}
+
 /* ---------- Init ---------- */
 buildColorPicker();
 buildChannelChips();
+initDatePickers();
 render();

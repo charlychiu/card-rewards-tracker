@@ -374,6 +374,8 @@ body::before {
 .field input,
 .field select {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   font-family: inherit;
   font-size: 15px;
   padding: 10px 12px;
@@ -595,4 +597,5 @@ body::before {
   .brand__sub { display: none; }
   .cards-grid { grid-template-columns: 1fr; }
   .rec__rate { font-size: 15px; }
+  .form__row { grid-template-columns: 1fr; }
 }

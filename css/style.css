@@ -19,6 +19,9 @@
 
 * { box-sizing: border-box; }
 
+/* 確保 hidden 屬性永遠優先於下方 .modal-overlay / .summary 的 display 設定 */
+[hidden] { display: none !important; }
+
 html, body { margin: 0; padding: 0; }
 
 body {

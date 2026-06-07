@@ -600,9 +600,25 @@ body::before {
 .chip.selected { background: var(--primary); color: #fff; border-color: transparent; }
 
 @media (max-width: 560px) {
-  .summary { grid-template-columns: 1fr; }
-  .summary__value { font-size: 22px; }
+  /* 頂部精簡:品牌與按鈕縮小排成一行,減少留白 */
+  .topbar__inner { padding: 9px 14px; }
+  .topbar__actions { gap: 6px; }
+  .topbar__actions .btn { padding: 7px 10px; font-size: 13px; }
+  .brand { gap: 8px; }
   .brand__sub { display: none; }
+  .brand__title { font-size: 16px; }
+  .brand__logo { font-size: 22px; }
+
+  .container { padding: 14px 14px 50px; }
+
+  /* 總覽改一行三小格(原本直向三大塊太佔高度) */
+  .summary { grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+  .summary__item { padding: 10px 8px; }
+  .summary__label { font-size: 10.5px; }
+  .summary__value { font-size: 16px; margin-top: 2px; }
+
+  .search { margin-bottom: 14px; }
+
   .cards-grid { grid-template-columns: 1fr; }
   .rec__rate { font-size: 15px; }
   .form__row { grid-template-columns: 1fr; }

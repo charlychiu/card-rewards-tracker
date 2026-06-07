@@ -182,6 +182,7 @@ body::before {
   transition: background 0.15s;
 }
 .icon-btn:hover { background: rgba(255, 255, 255, 0.34); }
+.icon-btn svg { display: block; }
 
 .card__body { padding: 14px 18px 18px; flex: 1; }
 

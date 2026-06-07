@@ -374,8 +374,8 @@ function renderCard(card) {
     <article class="card" style="--card-color:${color}">
       <div class="card__head">
         <div class="card__head-actions">
-          <button class="icon-btn" title="編輯卡片" data-action="edit-card" data-card="${card.id}">✎</button>
-          <button class="icon-btn" title="刪除卡片" data-action="delete-card" data-card="${card.id}">🗑</button>
+          <button class="icon-btn" title="編輯卡片" aria-label="編輯卡片" data-action="edit-card" data-card="${card.id}"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+          <button class="icon-btn" title="刪除卡片" aria-label="刪除卡片" data-action="delete-card" data-card="${card.id}"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
         </div>
         <h3 class="card__name">${esc(card.name)}</h3>
         ${card.issuer ? `<p class="card__issuer">${esc(card.issuer)}</p>` : ""}

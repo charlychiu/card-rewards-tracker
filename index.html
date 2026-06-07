@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>信用卡回饋追蹤 · Card Rewards Tracker</title>
+  <meta name="description" content="記錄你擁有的信用卡與回饋規則,自動計算本期還剩多少回饋額度可以用。資料只存在你的瀏覽器。" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💳</text></svg>" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <span class="brand__logo">💳</span>
+        <div>
+          <h1 class="brand__title">回饋追蹤</h1>
+          <p class="brand__sub">你的信用卡回饋額度,本期還剩多少</p>
+        </div>
+      </div>
+      <div class="topbar__actions">
+        <button class="btn btn--ghost" id="btnExport" title="把資料備份成 JSON 檔">匯出</button>
+        <button class="btn btn--ghost" id="btnImport" title="從 JSON 檔還原資料">匯入</button>
+        <input type="file" id="importFile" accept="application/json" hidden />
+        <button class="btn btn--primary" id="btnAddCard">+ 新增卡片</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="summary" id="summary" hidden>
+      <div class="summary__item">
+        <span class="summary__label">持卡數</span>
+        <strong class="summary__value" id="statCards">0</strong>
+      </div>
+      <div class="summary__item">
+        <span class="summary__label">本期已賺回饋</span>
+        <strong class="summary__value" id="statEarned">NT$0</strong>
+      </div>
+      <div class="summary__item">
+        <span class="summary__label">剩餘可賺額度</span>
+        <strong class="summary__value summary__value--accent" id="statRemaining">NT$0</strong>
+      </div>
+    </section>
+
+    <section id="cardsContainer" class="cards-grid"></section>
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-state__emoji">🪙</div>
+      <h2>還沒有任何卡片</h2>
+      <p>新增你的第一張信用卡,設定回饋規則,就能開始追蹤每期還能賺多少回饋。</p>
+      <button class="btn btn--primary" id="btnAddCardEmpty">+ 新增第一張卡片</button>
+    </div>
+
+    <section class="recent" id="recentSection" hidden>
+      <div class="recent__head">
+        <h2>最近消費紀錄</h2>
+        <button class="btn btn--ghost btn--sm" id="btnClearTxns" title="清空所有消費紀錄">清空紀錄</button>
+      </div>
+      <ul class="recent__list" id="recentList"></ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>資料只儲存在這台裝置的瀏覽器(localStorage),不會上傳到任何伺服器。記得定期「匯出」備份。</p>
+  </footer>
+
+  <!-- ===== Modal: 新增/編輯卡片 ===== -->
+  <div class="modal-overlay" id="modalCard" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalCardTitle">
+      <div class="modal__head">
+        <h3 id="modalCardTitle">新增卡片</h3>
+        <button class="modal__close" data-close aria-label="關閉">×</button>
+      </div>
+      <form id="formCard" class="form">
+        <input type="hidden" id="cardId" />
+        <label class="field">
+          <span class="field__label">卡片名稱 *</span>
+          <input type="text" id="cardName" placeholder="例如:國泰 CUBE 卡" required maxlength="40" />
+        </label>
+        <label class="field">
+          <span class="field__label">發卡銀行</span>
+          <input type="text" id="cardIssuer" placeholder="例如:國泰世華(可留白)" maxlength="40" />
+        </label>
+        <div class="field">
+          <span class="field__label">卡片顏色</span>
+          <div class="color-picker" id="colorPicker"></div>
+        </div>
+        <div class="modal__foot">
+          <button type="button" class="btn btn--ghost" data-close>取消</button>
+          <button type="submit" class="btn btn--primary">儲存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Modal: 新增/編輯回饋規則 ===== -->
+  <div class="modal-overlay" id="modalRule" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalRuleTitle">
+      <div class="modal__head">
+        <h3 id="modalRuleTitle">新增回饋規則</h3>
+        <button class="modal__close" data-close aria-label="關閉">×</button>
+      </div>
+      <form id="formRule" class="form">
+        <input type="hidden" id="ruleCardId" />
+        <input type="hidden" id="ruleId" />
+        <label class="field">
+          <span class="field__label">回饋類別 *</span>
+          <input type="text" id="ruleCategory" placeholder="例如:一般消費 / 網購 / 餐廳" required maxlength="30" />
+        </label>
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">回饋率 (%) *</span>
+            <input type="number" id="ruleRate" placeholder="3.3" step="0.1" min="0" max="100" required />
+          </label>
+          <label class="field">
+            <span class="field__label">回饋上限 (NT$)</span>
+            <input type="number" id="ruleCap" placeholder="留白=無上限" step="1" min="0" />
+          </label>
+        </div>
+        <label class="field">
+          <span class="field__label">計算週期 *</span>
+          <select id="rulePeriod" required>
+            <option value="monthly">每月</option>
+            <option value="bimonthly">每雙月</option>
+            <option value="quarterly">每季</option>
+            <option value="yearly">每年</option>
+          </select>
+        </label>
+        <p class="form__hint">「回饋上限」是這個週期內最多可以拿的回饋金額。例如每月回饋上限 500 元。</p>
+        <div class="modal__foot">
+          <button type="button" class="btn btn--ghost" data-close>取消</button>
+          <button type="submit" class="btn btn--primary">儲存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Modal: 記一筆消費 ===== -->
+  <div class="modal-overlay" id="modalTxn" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTxnTitle">
+      <div class="modal__head">
+        <h3 id="modalTxnTitle">記一筆消費</h3>
+        <button class="modal__close" data-close aria-label="關閉">×</button>
+      </div>
+      <form id="formTxn" class="form">
+        <input type="hidden" id="txnCardId" />
+        <input type="hidden" id="txnRuleId" />
+        <div class="txn-context" id="txnContext"></div>
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">消費金額 (NT$) *</span>
+            <input type="number" id="txnAmount" placeholder="1000" step="1" min="0" required />
+          </label>
+          <label class="field">
+            <span class="field__label">日期 *</span>
+            <input type="date" id="txnDate" required />
+          </label>
+        </div>
+        <label class="field">
+          <span class="field__label">備註</span>
+          <input type="text" id="txnNote" placeholder="例如:全聯買菜(可留白)" maxlength="60" />
+        </label>
+        <div class="txn-preview" id="txnPreview"></div>
+        <div class="modal__foot">
+          <button type="button" class="btn btn--ghost" data-close>取消</button>
+          <button type="submit" class="btn btn--primary">記錄</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

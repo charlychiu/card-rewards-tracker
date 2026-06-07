@@ -377,7 +377,7 @@ body::before {
   min-width: 0;
   max-width: 100%;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px; /* iOS:< 16px 會在聚焦時自動放大頁面,固定 16px 避免 */
   padding: 10px 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--glass-border);
@@ -385,14 +385,14 @@ body::before {
   color: var(--text);
 }
 .field input::placeholder { color: rgba(170, 178, 198, 0.6); }
-/* iOS Safari:date 欄位的值預設置中且會溢出,強制靠左並關閉原生外觀 */
+/* iOS Safari:date 欄位的值預設置中且會溢出,保留原生外觀並強制值靠左 */
 .field input[type="date"] {
-  -webkit-appearance: none;
-  appearance: none;
   text-align: left;
+  min-height: 44px;
+  line-height: normal;
 }
 .field input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
-.field input[type="date"]::-webkit-calendar-picker-indicator { margin-left: auto; }
+.field input[type="date"]::-webkit-calendar-picker-indicator { margin-left: auto; opacity: 0.6; }
 .field input:focus,
 .field select:focus {
   outline: none;

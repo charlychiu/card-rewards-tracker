@@ -1,7 +1,7 @@
 /* =========================================================
  * Card Rewards Tracker
  * 純前端 + localStorage。記錄信用卡與回饋規則,
- * 自動計算本期(週期內)還剩多少回饋額度。
+ * 自動計算本期(週期內)還剩多少回饋額度,並追蹤活動到期日。
  * ========================================================= */
 
 const STORAGE_KEY = "card-rewards-tracker:v1";
@@ -18,6 +18,74 @@ const PERIOD_LABEL = {
   quarterly: "每季",
   yearly: "每年",
 };
+
+/* ---------- 範本卡片(2026 上半年公開資訊整理,可能已變動,加入後請依官網調整) ---------- */
+const PRESETS = [
+  {
+    name: "國泰 CUBE 卡", issuer: "國泰世華", color: "#7c5cff",
+    rules: [
+      { category: "玩數位", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", note: "需於 CUBE App 切換權益;3.3% 為財管貴賓,一般約 3%。指定通路無上限" },
+      { category: "樂饗購", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", note: "需切換權益;餐飲/超市等指定通路,無上限" },
+      { category: "趣旅行", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", note: "需切換權益;海外/旅遊通路,無上限" },
+      { category: "集精選", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "需切換權益;統一 2%,含充電停車通路" },
+      { category: "一般消費(非指定)", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", note: "非指定通路基本回饋(小樹點)" },
+    ],
+  },
+  {
+    name: "台新 太陽卡", issuer: "台新銀行", color: "#f97316",
+    rules: [
+      { category: "Pay 著刷(行動支付)", rate: 3.8, cap: null, period: "monthly", expiry: null, note: "綁台新 Pay 最高 3.8%、LINE Pay 2.3%。太陽卡已整併為 Richart 卡,每日可切換方案 1 次" },
+      { category: "天天刷(超商/量販/交通/加油/藥妝)", rate: 3.3, cap: null, period: "monthly", expiry: null, note: "需於 Richart Life App 切換為此方案" },
+      { category: "好饗刷(餐飲/外送/訂房)", rate: 3.3, cap: null, period: "monthly", expiry: null, note: "需切換為此方案" },
+      { category: "玩旅刷(海外/航空/旅行社)", rate: 3.3, cap: null, period: "monthly", expiry: null, note: "海外消費;需切換為此方案" },
+      { category: "數趣刷(網購/影音/遊戲)", rate: 3.3, cap: null, period: "monthly", expiry: null, note: "需切換為此方案" },
+    ],
+  },
+  {
+    name: "玉山 Unicard", issuer: "玉山銀行", color: "#10b981",
+    rules: [
+      { category: "一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "需帳單 e 化 + 臺幣帳戶自動扣繳,否則 0.3%。回饋為 e point(1點=1元),無上限" },
+      { category: "簡單選(百大加碼)", rate: 3.0, cap: 1000, period: "monthly", expiry: "2026-06-30", note: "免申請;合計最高 3%(含一般 1%);月上限 1,000 點" },
+      { category: "任意選(自選 8 通路)", rate: 3.5, cap: 1000, period: "monthly", expiry: "2026-06-30", note: "玉山 Wallet 自選 8 家;合計最高 3.5%;月上限 1,000 點" },
+      { category: "UP 選(加碼最高)", rate: 4.5, cap: 5000, period: "monthly", expiry: "2026-06-30", note: "需任務(上月刷≥3萬或資產≥30萬)或 149 點訂閱;合計最高 4.5%;月上限 5,000 點" },
+    ],
+  },
+  {
+    name: "星展 傳說對決聯名卡", issuer: "星展銀行", color: "#e11d48",
+    rules: [
+      { category: "LINE Pay(新戶)", rate: 10.0, cap: 150, period: "monthly", expiry: "2026-06-30", note: "限 2026 新戶,需綁帳戶自動轉帳;月上限 150 點。舊戶 2026 起無加碼" },
+      { category: "生活玩家精選通路(遊戲/蝦皮/外送/影音)", rate: 10.0, cap: 300, period: "monthly", expiry: "2026-06-30", note: "新戶最高 10%;需綁自動轉帳;月上限 300 點,與 LINE Pay 分開計" },
+      { category: "國內一般消費(新戶)", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "新戶 1%、舊戶 0.2%;需綁自動轉帳" },
+      { category: "國外消費", rate: 2.5, cap: null, period: "monthly", expiry: "2026-06-30", note: "新戶 2.5%、舊戶 1.5%" },
+    ],
+  },
+  {
+    name: "永豐 SPORT 卡", issuer: "永豐銀行", color: "#0ea5e9",
+    rules: [
+      { category: "國內外一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "基本豐點回饋(1豐點=1元),無上限" },
+      { category: "行動支付/指定通路加碼", rate: 3.0, cap: 300, period: "monthly", expiry: "2026-06-30", note: "需達運動目標 + 自動扣繳;加碼 3%,上限 300 豐點/月" },
+      { category: "運動達標加碼", rate: 1.0, cap: 50, period: "monthly", expiry: "2026-06-30", note: "大咖 App 當月燃燒 10,000 大卡或畫圈 10 次;上限 50 豐點/月" },
+    ],
+  },
+  {
+    name: "永豐 三井購物卡", issuer: "永豐銀行", color: "#14b8a6",
+    rules: [
+      { category: "三井館內消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "MITSUI OUTLET / LaLaport 館內最高 1%,無上限" },
+      { category: "館外餐飲 / 全盈+PAY 加碼", rate: 7.0, cap: 100, period: "bimonthly", expiry: "2026-06-30", note: "需登錄 + 電子帳單 + 自動扣繳;每期(雙月)上限 100 元" },
+      { category: "海外日韓泰實體(JCB)", rate: 6.67, cap: 2000, period: "quarterly", expiry: "2026-06-30", note: "每季滿 30,000 送 2,000(約 6.67%),每季限 1 次" },
+      { category: "館外一般消費", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", note: "館外基本回饋約 0.3%" },
+    ],
+  },
+  {
+    name: "永豐 大戶卡 DAWHO", issuer: "永豐銀行", color: "#4338ca",
+    rules: [
+      { category: "國內一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "所有等級基本 1%,無上限;回饋入 DAWHO 帳戶" },
+      { category: "國外消費", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "所有等級基本 2%,無上限" },
+      { category: "大戶 Plus 加碼(國內)", rate: 4.0, cap: 1000, period: "monthly", expiry: "2026-06-30", note: "需任務 + 平均財富達 100 萬等;加碼 4%(合計國內 5%),上限 1,000 元/期" },
+      { category: "悠遊卡自動加值(大戶 Plus)", rate: 5.0, cap: 500, period: "monthly", expiry: "2026-06-30", note: "大戶 Plus 5% 上限 500 元/月;大戶 3% 上限 100 元/月" },
+    ],
+  },
+];
 
 /* ---------- State ---------- */
 let state = loadState();
@@ -59,6 +127,13 @@ function todayISO() {
   const d = new Date();
   const tz = d.getTimezoneOffset() * 60000;
   return new Date(d - tz).toISOString().slice(0, 10);
+}
+
+function daysUntil(iso) {
+  if (!iso) return null;
+  const today = new Date(todayISO() + "T00:00:00");
+  const target = new Date(iso + "T00:00:00");
+  return Math.round((target - today) / 86400000);
 }
 
 function periodKey(period, isoDate) {
@@ -106,24 +181,22 @@ function render() {
   $("#summary").hidden = !hasCards;
   $("#recentSection").hidden = state.transactions.length === 0;
 
-  // Summary
+  // Summary(已過期的規則不計入剩餘可賺額度)
   let totalEarned = 0;
   let totalRemaining = 0;
   state.cards.forEach((card) => {
     card.rules.forEach((rule) => {
       const s = computeRuleStats(card, rule);
+      const expired = rule.expiry && daysUntil(rule.expiry) < 0;
       totalEarned += s.earned;
-      if (s.hasCap) totalRemaining += s.remaining;
+      if (s.hasCap && !expired) totalRemaining += s.remaining;
     });
   });
   $("#statCards").textContent = state.cards.length;
   $("#statEarned").textContent = fmtTWD(totalEarned);
   $("#statRemaining").textContent = fmtTWD(totalRemaining);
 
-  // Cards
   cardsContainer.innerHTML = state.cards.map(renderCard).join("");
-
-  // Recent transactions
   renderRecent();
 }
 
@@ -152,8 +225,20 @@ function renderCard(card) {
     </article>`;
 }
 
+function renderExpiry(rule) {
+  if (!rule.expiry) return "";
+  const d = daysUntil(rule.expiry);
+  let cls = "", txt = "";
+  if (d < 0) { cls = "rule__expiry--expired"; txt = `活動已於 ${rule.expiry} 到期`; }
+  else if (d === 0) { cls = "rule__expiry--warn"; txt = `活動今天(${rule.expiry})到期`; }
+  else if (d <= 14) { cls = "rule__expiry--warn"; txt = `活動 ${rule.expiry} 到期 · 剩 ${d} 天`; }
+  else { txt = `活動到 ${rule.expiry} · 剩 ${d} 天`; }
+  return `<p class="rule__expiry ${cls}">⏳ ${txt}</p>`;
+}
+
 function renderRule(card, rule) {
   const s = computeRuleStats(card, rule);
+  const expired = rule.expiry && daysUntil(rule.expiry) < 0;
   let remainingBlock;
 
   if (s.hasCap) {
@@ -178,13 +263,15 @@ function renderRule(card, rule) {
   }
 
   return `
-    <div class="rule">
+    <div class="rule${expired ? " is-expired" : ""}">
       <div class="rule__top">
         <span class="rule__cat">${esc(rule.category)}</span>
         <span class="rule__rate">${rule.rate}% · ${PERIOD_LABEL[rule.period] || "每月"}</span>
       </div>
+      ${renderExpiry(rule)}
       <p class="rule__hint">本期消費 ${fmtTWD(s.spend)} · ${s.count} 筆</p>
       ${remainingBlock}
+      ${rule.note ? `<p class="rule__note">${esc(rule.note)}</p>` : ""}
       <div class="rule__actions">
         <button class="btn btn--primary btn--sm" data-action="add-txn" data-card="${card.id}" data-rule="${rule.id}">記一筆</button>
         <button class="btn btn--ghost btn--sm" data-action="edit-rule" data-card="${card.id}" data-rule="${rule.id}">編輯</button>
@@ -299,6 +386,8 @@ function openRuleModal(cardId, rule) {
   $("#ruleRate").value = rule ? rule.rate : "";
   $("#ruleCap").value = rule && rule.cap != null ? rule.cap : "";
   $("#rulePeriod").value = rule ? rule.period : "monthly";
+  $("#ruleExpiry").value = rule && rule.expiry ? rule.expiry : "";
+  $("#ruleNote").value = rule && rule.note ? rule.note : "";
   $("#modalRuleTitle").textContent = rule ? "編輯回饋規則" : "新增回饋規則";
   openModal("modalRule");
   $("#ruleCategory").focus();
@@ -315,13 +404,15 @@ $("#formRule").addEventListener("submit", (e) => {
   const capVal = $("#ruleCap").value.trim();
   const cap = capVal === "" ? null : Math.max(0, parseFloat(capVal));
   const period = $("#rulePeriod").value;
+  const expiry = $("#ruleExpiry").value || null;
+  const note = $("#ruleNote").value.trim();
   if (!category || isNaN(rate)) return;
 
   if (ruleId) {
     const rule = findRule(card, ruleId);
-    Object.assign(rule, { category, rate, cap, period });
+    Object.assign(rule, { category, rate, cap, period, expiry, note });
   } else {
-    card.rules.push({ id: uid("r"), category, rate, cap, period });
+    card.rules.push({ id: uid("r"), category, rate, cap, period, expiry, note });
   }
   saveState();
   render();
@@ -391,6 +482,56 @@ $("#formTxn").addEventListener("submit", (e) => {
   toast("已記錄消費");
 });
 
+/* ----- Presets modal ----- */
+function renderPresets() {
+  $("#presetList").innerHTML = PRESETS.map((p, i) => {
+    const summary = p.rules.map((r) => `${r.category} ${r.rate}%`).join("、");
+    const exists = state.cards.some((c) => c.name === p.name);
+    return `
+      <div class="preset-item" style="--card-color:${p.color}">
+        <span class="preset-item__bar"></span>
+        <div class="preset-item__main">
+          <div class="preset-item__name">${esc(p.name)}<small>${esc(p.issuer)}</small></div>
+          <div class="preset-item__rules">${esc(summary)}</div>
+        </div>
+        <button class="btn btn--primary btn--sm" data-preset="${i}" ${exists ? "disabled" : ""}>${exists ? "已加入" : "加入"}</button>
+      </div>`;
+  }).join("");
+}
+
+function addPreset(p) {
+  state.cards.push({
+    id: uid("c"),
+    name: p.name,
+    issuer: p.issuer,
+    color: p.color,
+    rules: p.rules.map((r) => ({
+      id: uid("r"),
+      category: r.category,
+      rate: r.rate,
+      cap: r.cap ?? null,
+      period: r.period,
+      expiry: r.expiry ?? null,
+      note: r.note || "",
+    })),
+  });
+  saveState();
+  render();
+  renderPresets();
+  toast(`已加入「${p.name}」`);
+}
+
+function openPresets() {
+  renderPresets();
+  openModal("modalPresets");
+}
+
+$("#presetList").addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-preset]");
+  if (!btn || btn.disabled) return;
+  addPreset(PRESETS[Number(btn.dataset.preset)]);
+});
+
 /* ---------- Event delegation (dynamic buttons) ---------- */
 cardsContainer.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-action]");
@@ -435,6 +576,8 @@ $("#recentList").addEventListener("click", (e) => {
 /* ---------- Top bar actions ---------- */
 $("#btnAddCard").addEventListener("click", () => openCardModal(null));
 $("#btnAddCardEmpty").addEventListener("click", () => openCardModal(null));
+$("#btnPresets").addEventListener("click", openPresets);
+$("#btnPresetsEmpty").addEventListener("click", openPresets);
 
 $("#btnClearTxns").addEventListener("click", () => {
   if (state.transactions.length === 0) return;

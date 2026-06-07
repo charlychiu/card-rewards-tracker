@@ -19,6 +19,7 @@
         </div>
       </div>
       <div class="topbar__actions">
+        <button class="btn btn--ghost" id="btnPresets" title="從常見台灣信用卡範本加入">範本</button>
         <button class="btn btn--ghost" id="btnExport" title="把資料備份成 JSON 檔">匯出</button>
         <button class="btn btn--ghost" id="btnImport" title="從 JSON 檔還原資料">匯入</button>
         <input type="file" id="importFile" accept="application/json" hidden />
@@ -49,7 +50,10 @@
       <div class="empty-state__emoji">🪙</div>
       <h2>還沒有任何卡片</h2>
       <p>新增你的第一張信用卡,設定回饋規則,就能開始追蹤每期還能賺多少回饋。</p>
-      <button class="btn btn--primary" id="btnAddCardEmpty">+ 新增第一張卡片</button>
+      <div class="empty-state__actions">
+        <button class="btn btn--primary" id="btnAddCardEmpty">+ 新增第一張卡片</button>
+        <button class="btn btn--ghost" id="btnPresetsEmpty">從範本加入</button>
+      </div>
     </div>
 
     <section class="recent" id="recentSection" hidden>
@@ -106,28 +110,38 @@
         <input type="hidden" id="ruleId" />
         <label class="field">
           <span class="field__label">回饋類別 *</span>
-          <input type="text" id="ruleCategory" placeholder="例如:一般消費 / 網購 / 餐廳" required maxlength="30" />
+          <input type="text" id="ruleCategory" placeholder="例如:一般消費 / 網購 / 餐廳" required maxlength="40" />
         </label>
         <div class="form__row">
           <label class="field">
             <span class="field__label">回饋率 (%) *</span>
-            <input type="number" id="ruleRate" placeholder="3.3" step="0.1" min="0" max="100" required />
+            <input type="number" id="ruleRate" placeholder="3.3" step="0.01" min="0" max="100" required />
           </label>
           <label class="field">
             <span class="field__label">回饋上限 (NT$)</span>
             <input type="number" id="ruleCap" placeholder="留白=無上限" step="1" min="0" />
           </label>
         </div>
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">計算週期 *</span>
+            <select id="rulePeriod" required>
+              <option value="monthly">每月</option>
+              <option value="bimonthly">每雙月</option>
+              <option value="quarterly">每季</option>
+              <option value="yearly">每年</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field__label">活動到期日</span>
+            <input type="date" id="ruleExpiry" />
+          </label>
+        </div>
         <label class="field">
-          <span class="field__label">計算週期 *</span>
-          <select id="rulePeriod" required>
-            <option value="monthly">每月</option>
-            <option value="bimonthly">每雙月</option>
-            <option value="quarterly">每季</option>
-            <option value="yearly">每年</option>
-          </select>
+          <span class="field__label">備註</span>
+          <input type="text" id="ruleNote" placeholder="例如:需登錄、需綁定數位帳戶(可留白)" maxlength="120" />
         </label>
-        <p class="form__hint">「回饋上限」是這個週期內最多可以拿的回饋金額。例如每月回饋上限 500 元。</p>
+        <p class="form__hint">「回饋上限」是這個週期內最多可以拿的回饋金額(例如每月上限 500 元);「活動到期日」可留白。</p>
         <div class="modal__foot">
           <button type="button" class="btn btn--ghost" data-close>取消</button>
           <button type="submit" class="btn btn--primary">儲存</button>
@@ -167,6 +181,20 @@
           <button type="submit" class="btn btn--primary">記錄</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ===== Modal: 範本卡片 ===== -->
+  <div class="modal-overlay" id="modalPresets" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalPresetsTitle">
+      <div class="modal__head">
+        <h3 id="modalPresetsTitle">範本卡片</h3>
+        <button class="modal__close" data-close aria-label="關閉">×</button>
+      </div>
+      <div class="form">
+        <p class="form__hint">點「加入」把整張卡與回饋規則加入清單。以下為 <b>2026 上半年</b>公開資訊整理,回饋率 / 上限 / 到期日可能已變動,加入後請依官網自行調整。</p>
+        <div id="presetList" class="preset-list"></div>
+      </div>
     </div>
   </div>
 

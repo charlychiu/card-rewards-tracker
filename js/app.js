@@ -53,10 +53,10 @@ const PRESETS = [
   {
     name: "星展 傳說對決聯名卡", issuer: "星展銀行", color: "#e11d48",
     rules: [
-      { category: "LINE Pay(新戶)", rate: 10.0, cap: 150, period: "monthly", expiry: "2026-06-30", note: "限 2026 新戶,需綁帳戶自動轉帳;月上限 150 點。舊戶 2026 起無加碼" },
-      { category: "生活玩家精選通路(遊戲/蝦皮/外送/影音)", rate: 10.0, cap: 300, period: "monthly", expiry: "2026-06-30", note: "新戶最高 10%;需綁自動轉帳;月上限 300 點,與 LINE Pay 分開計" },
-      { category: "國內一般消費(新戶)", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", note: "新戶 1%、舊戶 0.2%;需綁自動轉帳" },
-      { category: "國外消費", rate: 2.5, cap: null, period: "monthly", expiry: "2026-06-30", note: "新戶 2.5%、舊戶 1.5%" },
+      { category: "LINE Pay", rate: 10.0, cap: 1000, period: "monthly", expiry: "2026-06-30", note: "2025 申辦舊戶:10% 上限 1,000 元/月(基本 1.2% 無上限 + 加碼 8.8% 上限 1,000,約刷 11,363 元封頂),需綁帳戶自動扣繳,權益保留至 2026/6/30。2026 新戶上限僅 150 元" },
+      { category: "生活玩家精選通路(遊戲/蝦皮/外送/影音)", rate: 10.0, cap: 1000, period: "monthly", expiry: "2026-06-30", note: "舊戶權益不變,最高 10%、上限約 1,000 元/月,與 LINE Pay 分開計;2026 新戶上限 300。實際金額請對帳單確認" },
+      { category: "國內一般消費", rate: 1.2, cap: null, period: "monthly", expiry: "2026-06-30", note: "需綁帳戶自動扣繳(基本 0.2% + 加碼 1%),無上限" },
+      { category: "國外消費", rate: 2.5, cap: null, period: "monthly", expiry: "2026-06-30", note: "海外消費 2.5%,無上限" },
     ],
   },
   {

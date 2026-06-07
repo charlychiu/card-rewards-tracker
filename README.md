@@ -82,6 +82,20 @@ card-rewards-tracker/
 
 > ⚠️ 清除瀏覽器資料會一併清掉紀錄,請定期使用「匯出」備份。
 
+## 🔗 範本資料來源
+
+範本卡片的回饋數字為 **2026 上半年** 整理,各家方案變動頻繁(多數活動於 2026/06/30 到期),請以官方公告為準:
+
+| 卡片 | 官方 / 參考連結 |
+|------|------|
+| 國泰 CUBE 卡 | https://www.cathay-cube.com.tw/cathaybk/personal/product/credit-card/cards/cube-list |
+| 台新 太陽卡(已整併為 Richart 卡) | https://www.taishinbank.com.tw/TSB/personal/common/important-notice/TSBankImportantNotice-001346/ |
+| 玉山 Unicard | https://www.esunbank.com/zh-tw/personal/credit-card/intro/bank-card/unicard |
+| 星展 傳說對決聯名卡 | https://www.dbs.com.tw/personal-zh/cards/dbs-aov/index.html |
+| 永豐 SPORT 卡 | https://bank.sinopac.com/sinopacBT/personal/credit-card/introduction/bankcard/sportcard.html |
+| 永豐 三井購物卡 | https://bank.sinopac.com/sinopacBT/personal/credit-card/introduction/co-brand/mitsui-outlet-park-card.html |
+| 永豐 大戶卡 DAWHO | https://bank.sinopac.com/sinopacBT/personal/credit-card/introduction/bankcard/DAWHO.html · https://dawho.tw/hot/2026h1offer/ |
+
 ## 📝 授權
 
 MIT

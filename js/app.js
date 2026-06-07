@@ -96,13 +96,24 @@ const MERCHANTS = {
  * tier:該規則所屬「方案/等級」,空 = 一律生效;defaultTier:加入時預設選的等級 */
 const PRESETS = [
   {
-    name: "國泰 CUBE 卡", issuer: "國泰世華", color: "#7c5cff", defaultTier: "玩數位",
+    name: "國泰 CUBE 卡", issuer: "國泰世華", color: "#7c5cff", defaultTier: "Level 2 · 3%",
     rules: [
-      { category: "玩數位", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "玩數位", channels: ["網購", "影音", "遊戲數位", "行動支付"], note: "需於 CUBE App 切換權益;3.3% 為財管貴賓,一般約 3%。指定通路無上限" },
-      { category: "樂饗購", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "樂饗購", channels: ["餐飲", "超市量販", "外送", "超商"], note: "需切換權益;餐飲/超市等指定通路,無上限" },
-      { category: "趣旅行", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "趣旅行", channels: ["旅遊海外", "交通"], note: "需切換權益;海外/旅遊通路,無上限" },
-      { category: "集精選", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "集精選", channels: ["百貨", "藥妝"], note: "需切換權益;統一 2%,含充電停車通路" },
-      { category: "一般消費(非指定)", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "", channels: ["一般消費"], note: "非指定通路基本回饋(小樹點),不分方案皆有" },
+      // 玩數位(等級影響 %)
+      { category: "玩數位", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "Level 1 · 2%", channels: ["網購", "影音", "遊戲數位", "行動支付"], note: "Level 1(持卡):2%。需於 CUBE App 切換為玩數位,指定通路無上限" },
+      { category: "玩數位", rate: 3.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "Level 2 · 3%", channels: ["網購", "影音", "遊戲數位", "行動支付"], note: "Level 2(臺幣帳戶 + CUBE App/自動扣繳):3%。需切換為玩數位,無上限" },
+      { category: "玩數位", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "Level 3 · 3.3%", channels: ["網購", "影音", "遊戲數位", "行動支付"], note: "Level 3(財富管理 VIP,平均資產 300 萬+):3.3%。需切換為玩數位,無上限" },
+      // 樂饗購
+      { category: "樂饗購", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "Level 1 · 2%", channels: ["餐飲", "超市量販", "外送", "超商"], note: "Level 1(持卡):2%。需切換為樂饗購(餐飲/超市等)" },
+      { category: "樂饗購", rate: 3.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "Level 2 · 3%", channels: ["餐飲", "超市量販", "外送", "超商"], note: "Level 2:3%。需切換為樂饗購" },
+      { category: "樂饗購", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "Level 3 · 3.3%", channels: ["餐飲", "超市量販", "外送", "超商"], note: "Level 3:3.3%。需切換為樂饗購" },
+      // 趣旅行
+      { category: "趣旅行", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "Level 1 · 2%", channels: ["旅遊海外", "交通"], note: "Level 1(持卡):2%。需切換為趣旅行(海外/旅遊)" },
+      { category: "趣旅行", rate: 3.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "Level 2 · 3%", channels: ["旅遊海外", "交通"], note: "Level 2:3%。需切換為趣旅行" },
+      { category: "趣旅行", rate: 3.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "Level 3 · 3.3%", channels: ["旅遊海外", "交通"], note: "Level 3:3.3%。需切換為趣旅行" },
+      // 集精選(不分等級,統一 2%)
+      { category: "集精選", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "", channels: ["百貨", "藥妝"], note: "集精選不分等級,統一 2%(含充電停車),無上限" },
+      // 一般消費(不分等級/方案)
+      { category: "一般消費(非指定)", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", tier: "", channels: ["一般消費"], note: "非指定通路基本回饋(小樹點),不分等級/方案皆有" },
     ],
   },
   {

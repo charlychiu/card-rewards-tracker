@@ -190,6 +190,11 @@ function backfillFromPresets() {
         changed = true;
       }
     });
+    // 既有卡片若從未設定過 activeTier(舊資料)且有等級規則,自動套用範本預設等級
+    if (card.activeTier === undefined && preset.defaultTier && card.rules.some((r) => r.tier)) {
+      card.activeTier = preset.defaultTier;
+      changed = true;
+    }
   });
   if (changed) saveState();
 }

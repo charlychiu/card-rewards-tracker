@@ -1,0 +1,48 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject content-hash cache-busting into index.html
+        run: |
+          CSS_HASH=$(sha256sum css/style.css | cut -c1-10)
+          JS_HASH=$(sha256sum js/app.js | cut -c1-10)
+          echo "css=$CSS_HASH js=$JS_HASH"
+          # 把 index.html 的 ?v=... 換成對應檔案的內容雜湊(內容沒變→雜湊不變→沿用快取)
+          sed -i "s#css/style\.css?v=[A-Za-z0-9]*#css/style.css?v=${CSS_HASH}#g" index.html
+          sed -i "s#js/app\.js?v=[A-Za-z0-9]*#js/app.js?v=${JS_HASH}#g" index.html
+          echo "----- index.html asset refs after injection -----"
+          grep -E "style\.css\?v=|app\.js\?v=" index.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

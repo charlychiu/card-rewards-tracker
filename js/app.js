@@ -176,16 +176,17 @@ function backfillFromPresets() {
     const preset = PRESETS.find((p) => p.name === card.name);
     if (!preset) return;
     card.rules.forEach((rule) => {
-      const pr =
-        preset.rules.find((r) => r.category === rule.category) ||
+      const exact = preset.rules.find((r) => r.category === rule.category);
+      const loose = exact ||
         preset.rules.find((r) => rule.category.includes(r.category) || r.category.includes(rule.category));
-      if (!pr) return;
-      if ((!Array.isArray(rule.channels) || !rule.channels.length) && Array.isArray(pr.channels) && pr.channels.length) {
-        rule.channels = pr.channels.slice();
+      // 通路:精確優先,找不到才用相近(誤判只是少推薦,影響小)
+      if ((!Array.isArray(rule.channels) || !rule.channels.length) && loose && Array.isArray(loose.channels) && loose.channels.length) {
+        rule.channels = loose.channels.slice();
         changed = true;
       }
-      if (rule.tier == null && pr.tier != null) {
-        rule.tier = pr.tier;
+      // 方案/等級:只在「類別完全相同」時補。相近比對會誤標等級、進而錯誤隱藏規則
+      if (rule.tier == null && exact && exact.tier) {
+        rule.tier = exact.tier;
         changed = true;
       }
     });

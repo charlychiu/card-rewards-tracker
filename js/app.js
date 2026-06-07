@@ -144,7 +144,7 @@ const PRESETS = [
     name: "永豐 三井購物卡", issuer: "永豐銀行", color: "#14b8a6",
     rules: [
       { category: "三井館內消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["三井", "百貨"], note: "MITSUI OUTLET / LaLaport 館內最高 1%,無上限" },
-      { category: "館外餐飲 / 全盈+PAY 加碼", rate: 7.0, cap: 100, period: "bimonthly", expiry: "2026-06-30", channels: ["餐飲", "行動支付"], note: "需登錄 + 電子帳單 + 自動扣繳;每期(雙月)上限 100 元" },
+      { category: "館外餐飲 / 全盈+PAY 加碼", rate: 7.0, cap: 100, period: "bimonthly", expiry: "2026-06-30", channels: ["餐飲"], note: "需登錄 + 電子帳單 + 自動扣繳;每期(雙月)上限 100 元。此 7% 限『全盈+PAY(全盈支付)』,Apple Pay / Google Pay 不適用" },
       { category: "海外日韓泰實體(JCB)", rate: 6.67, cap: 2000, period: "quarterly", expiry: "2026-06-30", channels: ["旅遊海外"], note: "每季滿 30,000 送 2,000(約 6.67%),每季限 1 次" },
       { category: "館外一般消費", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "館外基本回饋約 0.3%" },
     ],

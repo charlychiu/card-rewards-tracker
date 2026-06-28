@@ -173,7 +173,7 @@ const PRESETS = [
     name: "永豐 三井購物卡", issuer: "永豐銀行", color: "#14b8a6",
     rules: [
       { category: "三井館內消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["三井", "百貨"], note: "MITSUI OUTLET / LaLaport 館內最高 1% 豐點,無上限(需設定豐點折抵帳單,否則改累紅利)" },
-      { category: "館外餐飲(實體) 7% 刷卡金", rate: 7.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["餐飲"], note: "需登錄 + 電子/行動帳單 + (永豐/京城自動扣繳成功 或 當期一般消費滿 3,000)。限境內外實體餐飲(MCC 5811-5814,如王品/雲雀),排除館內餐飲、百貨/飯店內餐飲、小額支付。上限以官網為準" },
+      { category: "館外餐飲(實體) 7% 刷卡金", rate: 7.0, cap: 100, period: "monthly", expiry: "2026-06-30", channels: ["餐飲"], note: "需登錄 + 電子/行動帳單 + (永豐/京城自動扣繳成功 或 當期一般消費滿 3,000)。限境內外實體餐飲(MCC 5811-5814,如王品/雲雀),排除館內餐飲、百貨/飯店內餐飲、小額支付。每期帳單回饋上限 100 元(約刷滿 1,428 元封頂)" },
       { category: "海外日韓泰實體(JCB)", rate: 6.67, cap: 2000, period: "quarterly", expiry: "2026-06-30", channels: ["旅遊海外"], note: "限 JCB 卡 + 每季登錄 + 自動扣繳;日/韓/泰實體店滿額送刷卡金,每戶每季上限 2,000 元、限 1 次" },
       { category: "館外一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "館內外一般消費最高 1% 豐點、無上限(需設定豐點折抵帳單);未設定僅累紅利。已分期交易不享" },
     ],

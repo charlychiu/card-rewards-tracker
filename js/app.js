@@ -100,7 +100,7 @@ const PRESETS = [
     // CUBE 卡權益適用期間 2026/1/1~2026/12/31。等級分級:持卡 2% / 臺幣帳戶 + App 3% / 財富 VIP 3.3%
     rules: [
       // 玩數位(指定線上消費:網購/影音/遊戲;等級影響 %)
-      { category: "玩數位", rate: 2.0, cap: null, period: "monthly", expiry: "2026-12-31", tier: "Level 1 · 2%", channels: ["網購", "影音", "遊戲數位"], note: "Level 1(持卡):2%。蝦皮、momo、PChome、小樹購、Netflix、Steam 等。需於 CUBE App 切換為玩數位,無上限" },
+      { category: "玩數位", rate: 2.0, cap: null, period: "monthly", expiry: "2026-12-31", tier: "Level 1 · 2%", channels: ["網購", "影音", "遊戲數位"], note: "Level 1(持卡):2%。蝦皮、momo、PChome、小樹購、Netflix、Steam、ChatGPT/Notion 等 AI 工具。需於 CUBE App 切換為玩數位,無上限" },
       { category: "玩數位", rate: 3.0, cap: null, period: "monthly", expiry: "2026-12-31", tier: "Level 2 · 3%", channels: ["網購", "影音", "遊戲數位"], note: "Level 2(臺幣帳戶 + CUBE App/自動扣繳):3%。需切換為玩數位,無上限" },
       { category: "玩數位", rate: 3.3, cap: null, period: "monthly", expiry: "2026-12-31", tier: "Level 3 · 3.3%", channels: ["網購", "影音", "遊戲數位"], note: "Level 3(財富管理 VIP,平均資產 300 萬+):3.3%。需切換為玩數位,無上限" },
       // 樂饗購(餐飲/百貨/康是美/外送)
@@ -112,7 +112,7 @@ const PRESETS = [
       { category: "趣旅行", rate: 3.0, cap: null, period: "monthly", expiry: "2026-12-31", tier: "Level 2 · 3%", channels: ["旅遊海外", "交通"], note: "Level 2:3%。需切換為趣旅行" },
       { category: "趣旅行", rate: 3.3, cap: null, period: "monthly", expiry: "2026-12-31", tier: "Level 3 · 3.3%", channels: ["旅遊海外", "交通"], note: "Level 3:3.3%。需切換為趣旅行" },
       // 集精選(指定生活通路;不分等級統一 2%)
-      { category: "集精選", rate: 2.0, cap: null, period: "monthly", expiry: "2026-12-31", tier: "", channels: ["超商", "超市量販", "交通"], note: "集精選不分等級統一 2%,無上限。7-11/全家/萊爾富、全聯、家樂福,及車麻吉/uTagGo 充電停車。需切換為集精選" },
+      { category: "集精選", rate: 2.0, cap: null, period: "monthly", expiry: "2026-12-31", tier: "", channels: ["超商", "超市量販", "交通", "加油"], note: "集精選不分等級統一 2%,無上限。7-11/全家/萊爾富、全聯、家樂福、台灣中油(直營)、IKEA,及車麻吉/uTagGo 充電停車。需切換為集精選" },
       // 台塑家(2026/6/1~2026/12/31 新增;台塑加油站/通路 2%,不分等級)
       { category: "台塑家", rate: 2.0, cap: null, period: "monthly", expiry: "2026-12-31", tier: "", channels: ["加油", "超商"], note: "新增方案(2026/6/1~12/31):台塑石油/台亞/福懋/統一速邁樂等指定加油站 2%,另含台塑生醫、長庚生技及超商。需綁實體卡/Apple Pay 等,排除網路/儲值/第三方支付。需切換為台塑家" },
       // 全支付(2026/4/22~2026/12/31 新增;全支付綁定國內指定通路 2%,不分等級)
@@ -136,7 +136,7 @@ const PRESETS = [
       { category: "好饗刷(餐飲/外送/娛樂/飯店)", rate: 3.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["餐飲", "外送"], note: "全臺餐飲(不含餐券)、王品瘋Pay、Uber Eats、Foodpanda、拓元/年代/寬宏售票、FunNow、晶華/雲朗/萬豪等指定飯店、錢櫃/好樂迪等KTV。需切換為此方案" },
       { category: "數趣刷(網購/影音/遊戲/AI)", rate: 3.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["網購", "影音", "遊戲數位"], note: "蝦皮、momo、酷澎、PChome、淘寶、Netflix、Disney+、Steam、PlayStation、Nintendo、線上課程(Hahow 等)、AI 服務(ChatGPT、Claude、Notion、Canva、Perplexity)。需切換為此方案" },
       { category: "玩旅刷(海外/航空/訂房/旅行社)", rate: 3.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["旅遊海外"], note: "海外消費(含線上、歐洲)、海外交通(Uber/Grab/SUICA 等)、中華/長榮/星宇等航空、Klook/KKday/Agoda/Booking 訂房、雄獅/易遊網等旅行社。需切換為此方案" },
-      { category: "假日刷(節假日不限通路)", rate: 2.0, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["一般消費"], note: "國定例假日(不含天災假)不限通路 2%(含保費、含 LINE Pay 綁定)。四大超商、繳稅費等不回饋。需切換為此方案" },
+      { category: "假日刷(節假日不限通路)", rate: 2.0, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: [], note: "國定例假日(不含天災假)不限通路 2%(含保費、含 LINE Pay 綁定)。四大超商、繳稅費等不回饋。需切換為此方案。註:僅假日適用,故不納入日常通路推薦,平日請以其他刷別為準" },
       // ---- 不需切換、不分身分等級 ----
       { category: "保費(一次付清)", rate: 1.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: [], note: "刷卡繳保費一次付清最高 1.3%,免切換免登錄、不分身分等級。不含國外保險、躉繳、投資型、彈性繳保費、分期 0 利率" },
       { category: "一般消費", rate: 0.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["一般消費"], note: "非指定通路一般消費 0.3% 台新Point,無上限,不分身分等級。回饋為台新Point(信用卡),效期 2 年" },
@@ -146,9 +146,9 @@ const PRESETS = [
     name: "玉山 Unicard", issuer: "玉山銀行", color: "#10b981", defaultTier: "任意選",
     rules: [
       { category: "一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-12-31", tier: "", channels: ["一般消費"], note: "需帳單 e 化 + 臺幣帳戶自動扣繳,否則 0.3%。回饋為 e point(1點=1元),無上限。各方案皆有" },
-      { category: "簡單選(百大加碼)", rate: 3.0, cap: 1000, period: "monthly", expiry: "2026-12-31", tier: "簡單選", channels: ["百貨", "網購", "行動支付"], note: "免申請;百大指定消費合計最高 3%(含一般 1%);月上限 1,000 點。百大含百貨/網購/行動支付/餐飲等" },
-      { category: "任意選(自選 8 通路)", rate: 3.5, cap: 1000, period: "monthly", expiry: "2026-12-31", tier: "任意選", channels: ["餐飲", "網購", "影音", "外送", "行動支付"], note: "玉山 Wallet 自選 8 家百大通路;合計最高 3.5%;月上限 1,000 點。通路請依你實際自選調整" },
-      { category: "UP 選(加碼最高)", rate: 4.5, cap: 5000, period: "monthly", expiry: "2026-12-31", tier: "UP 選", channels: ["餐飲", "網購", "影音", "外送", "百貨", "行動支付"], note: "需任務(上月平均資產≥30萬等)或 149 點 e point 訂閱;合計最高 4.5%;月上限 5,000 點。升級當月不可再切回簡單/任意選" },
+      { category: "簡單選(百大加碼)", rate: 3.0, cap: 1000, period: "monthly", expiry: "2026-12-31", tier: "簡單選", channels: ["百貨", "網購", "行動支付", "餐飲", "外送", "超市量販", "藥妝", "加油", "交通", "旅遊海外"], note: "免申請;百大全通路 +2% 合計最高 3%(含一般 1%);月上限 1,000 點。百大含行動支付/電商/百貨/家樂福屈臣氏康是美/餐飲外送/台灣中油台塑PAY/台鐵高鐵/航空旅遊等" },
+      { category: "任意選(自選 8 通路)", rate: 3.5, cap: 1000, period: "monthly", expiry: "2026-12-31", tier: "任意選", channels: ["餐飲", "網購", "影音", "外送", "行動支付"], note: "需完成指定任務或 149 點 e point 訂閱;玉山 Wallet 自選 8 家百大通路 +2.5%,合計最高 3.5%;月上限 1,000 點。通路請依你實際自選調整" },
+      { category: "UP 選(加碼最高)", rate: 4.5, cap: 5000, period: "monthly", expiry: "2026-12-31", tier: "UP 選", channels: ["餐飲", "網購", "影音", "外送", "百貨", "行動支付"], note: "需任務(上月刷≥3萬 且 平均資產≥30萬)或 149 點 e point 訂閱;百大自選 +3.5%,合計最高 4.5%;月上限 5,000 點。升級當月不可再切回簡單/任意選" },
     ],
   },
   {
@@ -165,8 +165,8 @@ const PRESETS = [
     rules: [
       // 主活動 2026/7/1~12/31:基本 1% + 運動獎勵 1% + 指定支付/通路 3% = 最高 5% 豐點(1豐點=1元)
       { category: "國內外一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-12-31", channels: ["一般消費"], note: "基本 0.3% + 設定電子/行動帳單 +0.7% = 最高 1%。否則僅 0.3%。無上限" },
-      { category: "行動支付/指定通路加碼", rate: 3.0, cap: null, period: "monthly", expiry: "2026-12-31", channels: ["行動支付", "運動健身", "遊戲數位"], note: "需達運動目標(大咖 App 當月 10,000 大卡或 Apple Watch 畫圈 10 次)+ 永豐/京城自動扣繳;加碼 3%(Apple/Google/Samsung/Garmin Pay、運動中心、App Store/Google Play 等)。上限以官網為準" },
-      { category: "運動達標加碼", rate: 1.0, cap: null, period: "monthly", expiry: "2026-12-31", channels: ["一般消費"], note: "達運動目標 + 自動扣繳,一般消費(不含保費)再 +1%。上限以官網為準" },
+      { category: "行動支付/指定通路加碼", rate: 3.0, cap: 300, period: "monthly", expiry: "2026-12-31", channels: ["行動支付", "運動健身", "遊戲數位"], note: "需達運動目標(大咖 App 當月 10,000 大卡或 Apple Watch 畫圈 10 次)+ 永豐/京城自動扣繳;加碼 3%(Apple/Google/Samsung/Garmin Pay、運動中心、App Store/Google Play 等)。每月回饋上限 300 元(約刷滿 1 萬封頂)" },
+      { category: "運動達標加碼", rate: 1.0, cap: 50, period: "monthly", expiry: "2026-12-31", channels: ["一般消費"], note: "達運動目標 + 自動扣繳,一般消費(不含保費)再 +1%。每月回饋上限 50 元(約刷滿 5 千封頂)。註:『支持運動 Podcast』另為永豐贊助活動(亦 50 元/月),非持卡人回饋" },
     ],
   },
   {

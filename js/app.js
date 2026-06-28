@@ -145,47 +145,48 @@ const PRESETS = [
   {
     name: "玉山 Unicard", issuer: "玉山銀行", color: "#10b981", defaultTier: "任意選",
     rules: [
-      { category: "一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "", channels: ["一般消費"], note: "需帳單 e 化 + 臺幣帳戶自動扣繳,否則 0.3%。回饋為 e point(1點=1元),無上限。各方案皆有" },
-      { category: "簡單選(百大加碼)", rate: 3.0, cap: 1000, period: "monthly", expiry: "2026-06-30", tier: "簡單選", channels: ["百貨", "網購", "超市量販"], note: "免申請;合計最高 3%(含一般 1%);月上限 1,000 點" },
-      { category: "任意選(自選 8 通路)", rate: 3.5, cap: 1000, period: "monthly", expiry: "2026-06-30", tier: "任意選", channels: ["餐飲", "網購", "影音", "外送"], note: "玉山 Wallet 自選 8 家;合計最高 3.5%;月上限 1,000 點。通路請依你實際自選調整" },
-      { category: "UP 選(加碼最高)", rate: 4.5, cap: 5000, period: "monthly", expiry: "2026-06-30", tier: "UP 選", channels: ["餐飲", "網購", "影音", "外送", "百貨"], note: "需任務(上月刷≥3萬或資產≥30萬)或 149 點訂閱;合計最高 4.5%;月上限 5,000 點" },
+      { category: "一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-12-31", tier: "", channels: ["一般消費"], note: "需帳單 e 化 + 臺幣帳戶自動扣繳,否則 0.3%。回饋為 e point(1點=1元),無上限。各方案皆有" },
+      { category: "簡單選(百大加碼)", rate: 3.0, cap: 1000, period: "monthly", expiry: "2026-12-31", tier: "簡單選", channels: ["百貨", "網購", "行動支付"], note: "免申請;百大指定消費合計最高 3%(含一般 1%);月上限 1,000 點。百大含百貨/網購/行動支付/餐飲等" },
+      { category: "任意選(自選 8 通路)", rate: 3.5, cap: 1000, period: "monthly", expiry: "2026-12-31", tier: "任意選", channels: ["餐飲", "網購", "影音", "外送", "行動支付"], note: "玉山 Wallet 自選 8 家百大通路;合計最高 3.5%;月上限 1,000 點。通路請依你實際自選調整" },
+      { category: "UP 選(加碼最高)", rate: 4.5, cap: 5000, period: "monthly", expiry: "2026-12-31", tier: "UP 選", channels: ["餐飲", "網購", "影音", "外送", "百貨", "行動支付"], note: "需任務(上月平均資產≥30萬等)或 149 點 e point 訂閱;合計最高 4.5%;月上限 5,000 點。升級當月不可再切回簡單/任意選" },
     ],
   },
   {
     name: "星展 傳說對決聯名卡", issuer: "星展銀行", color: "#e11d48",
     rules: [
-      { category: "LINE Pay", rate: 10.0, cap: 1000, period: "monthly", expiry: "2026-06-30", channels: ["行動支付"], note: "2025 申辦舊戶:10% 上限 1,000 元/月(基本 1.2% 無上限 + 加碼 8.8% 上限 1,000,約刷 11,363 元封頂),需綁帳戶自動扣繳,權益保留至 2026/6/30。2026 新戶上限僅 150 元" },
-      { category: "生活玩家精選通路(遊戲/蝦皮/外送/影音)", rate: 10.0, cap: 1000, period: "monthly", expiry: "2026-06-30", channels: ["遊戲數位", "網購", "外送", "影音"], note: "舊戶權益不變,最高 10%、上限約 1,000 元/月,與 LINE Pay 分開計;2026 新戶上限 300。實際金額請對帳單確認" },
-      { category: "國內一般消費", rate: 1.2, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "需綁帳戶自動扣繳(基本 0.2% + 加碼 1%),無上限" },
-      { category: "國外消費", rate: 2.5, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["旅遊海外"], note: "海外消費 2.5%,無上限" },
+      // 2026/7/1~12/31 新制(需以指定星展帳戶設定自動轉帳付款);舊戶 10%/上限 1,000 方案已於 2026/6/30 到期
+      { category: "生活玩家精選通路(遊戲/影音/外送/餐飲/蝦皮)", rate: 10.0, cap: 500, period: "monthly", expiry: "2026-12-31", channels: ["遊戲數位", "影音", "外送", "餐飲", "網購"], note: "需綁帳戶自動扣繳。最高 10%(含基本 1% + 加碼 9%);加碼每月上限 500 點。Steam/PS/Switch、Netflix/Disney+/Spotify、Uber Eats/foodpanda、麥當勞/肯德基、蝦皮等" },
+      { category: "國外指定地區實體(美/韓/日/歐/泰/星)", rate: 5.0, cap: 500, period: "monthly", expiry: "2026-12-31", channels: ["旅遊海外"], note: "需綁帳戶自動扣繳。指定地區實體消費最高 5%(含基本 1% + 加碼 4%);加碼每月上限 500 點" },
+      { category: "國內外一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-12-31", channels: ["一般消費"], note: "需綁帳戶自動扣繳;國內外一般消費最高 1%,無上限(非指定地區國外亦 1%)" },
     ],
   },
   {
     name: "永豐 SPORT 卡", issuer: "永豐銀行", color: "#0ea5e9",
     rules: [
-      { category: "國內外一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "基本豐點回饋(1豐點=1元),無上限" },
-      { category: "行動支付/指定通路加碼", rate: 3.0, cap: 300, period: "monthly", expiry: "2026-06-30", channels: ["行動支付", "運動健身", "遊戲數位"], note: "需達運動目標 + 自動扣繳;加碼 3%(含 Apple/Google/Samsung/Garmin Pay),上限 300 豐點/月。可疊基本+運動約 5%" },
-      { category: "運動達標加碼", rate: 1.0, cap: 50, period: "monthly", expiry: "2026-06-30", channels: ["運動健身"], note: "大咖 App 當月燃燒 10,000 大卡或畫圈 10 次;上限 50 豐點/月" },
+      // 主活動 2026/7/1~12/31:基本 1% + 運動獎勵 1% + 指定支付/通路 3% = 最高 5% 豐點(1豐點=1元)
+      { category: "國內外一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-12-31", channels: ["一般消費"], note: "基本 0.3% + 設定電子/行動帳單 +0.7% = 最高 1%。否則僅 0.3%。無上限" },
+      { category: "行動支付/指定通路加碼", rate: 3.0, cap: null, period: "monthly", expiry: "2026-12-31", channels: ["行動支付", "運動健身", "遊戲數位"], note: "需達運動目標(大咖 App 當月 10,000 大卡或 Apple Watch 畫圈 10 次)+ 永豐/京城自動扣繳;加碼 3%(Apple/Google/Samsung/Garmin Pay、運動中心、App Store/Google Play 等)。上限以官網為準" },
+      { category: "運動達標加碼", rate: 1.0, cap: null, period: "monthly", expiry: "2026-12-31", channels: ["一般消費"], note: "達運動目標 + 自動扣繳,一般消費(不含保費)再 +1%。上限以官網為準" },
     ],
   },
   {
     name: "永豐 三井購物卡", issuer: "永豐銀行", color: "#14b8a6",
     rules: [
-      { category: "三井館內消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["三井", "百貨"], note: "MITSUI OUTLET / LaLaport 館內最高 1%,無上限" },
-      { category: "館外餐飲 / 全盈+PAY 加碼", rate: 7.0, cap: 100, period: "bimonthly", expiry: "2026-06-30", channels: ["餐飲"], note: "需登錄 + 電子帳單 + 自動扣繳;每期(雙月)上限 100 元。此 7% 限『全盈+PAY(全盈支付)』,Apple Pay / Google Pay 不適用" },
-      { category: "海外日韓泰實體(JCB)", rate: 6.67, cap: 2000, period: "quarterly", expiry: "2026-06-30", channels: ["旅遊海外"], note: "每季滿 30,000 送 2,000(約 6.67%),每季限 1 次" },
-      { category: "館外一般消費", rate: 0.3, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "館外基本回饋約 0.3%" },
+      { category: "三井館內消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["三井", "百貨"], note: "MITSUI OUTLET / LaLaport 館內最高 1% 豐點,無上限(需設定豐點折抵帳單,否則改累紅利)" },
+      { category: "館外餐飲(實體) 7% 刷卡金", rate: 7.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["餐飲"], note: "需登錄 + 電子/行動帳單 + (永豐/京城自動扣繳成功 或 當期一般消費滿 3,000)。限境內外實體餐飲(MCC 5811-5814,如王品/雲雀),排除館內餐飲、百貨/飯店內餐飲、小額支付。上限以官網為準" },
+      { category: "海外日韓泰實體(JCB)", rate: 6.67, cap: 2000, period: "quarterly", expiry: "2026-06-30", channels: ["旅遊海外"], note: "限 JCB 卡 + 每季登錄 + 自動扣繳;日/韓/泰實體店滿額送刷卡金,每戶每季上限 2,000 元、限 1 次" },
+      { category: "館外一般消費", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", channels: ["一般消費"], note: "館內外一般消費最高 1% 豐點、無上限(需設定豐點折抵帳單);未設定僅累紅利。已分期交易不享" },
     ],
   },
   {
     name: "永豐 大戶卡 DAWHO", issuer: "永豐銀行", color: "#4338ca", defaultTier: "大戶",
     rules: [
       { category: "國內消費(大大)", rate: 1.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大大", channels: ["一般消費"], note: "2026 全通路無腦卡;大大等級國內 1%,無上限" },
-      { category: "國內消費(大戶)", rate: 3.5, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶", channels: ["一般消費"], note: "大戶等級國內 3.5%,無上限(需符合大戶等級條件)" },
-      { category: "國內消費(大戶 Plus)", rate: 5.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶 Plus", channels: ["一般消費"], note: "大戶 Plus 等級國內 5%,無上限(需符合 Plus 條件,如平均財富達 100 萬等)" },
+      { category: "國內消費(大戶)", rate: 3.5, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶", channels: ["一般消費"], note: "大戶國內 3.5%(基本 1% 無上限 + 任務加碼 2.5%);加碼部分每月上限 NT$400(國內外共用)。需完成指定任務(自動扣繳 + 電子帳單)" },
+      { category: "國內消費(大戶 Plus)", rate: 5.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶 Plus", channels: ["一般消費"], note: "大戶 Plus 國內 5%(基本 1% 無上限 + 任務加碼 4%);加碼部分每月上限 NT$1,000(國內外共用)。需平均財富達 100 萬等條件 + 指定任務" },
       { category: "國外消費(大大)", rate: 2.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大大", channels: ["旅遊海外"], note: "大大等級國外 2%,無上限" },
-      { category: "國外消費(大戶)", rate: 4.5, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶", channels: ["旅遊海外"], note: "大戶等級國外 4.5%,無上限" },
-      { category: "國外消費(大戶 Plus)", rate: 6.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶 Plus", channels: ["旅遊海外"], note: "大戶 Plus 等級國外 6%,無上限" },
+      { category: "國外消費(大戶)", rate: 4.5, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶", channels: ["旅遊海外"], note: "大戶國外 4.5%(基本 2% 無上限 + 任務加碼 2.5%);加碼部分每月上限 NT$400(與國內共用)" },
+      { category: "國外消費(大戶 Plus)", rate: 6.0, cap: null, period: "monthly", expiry: "2026-06-30", tier: "大戶 Plus", channels: ["旅遊海外"], note: "大戶 Plus 國外 6%(基本 2% 無上限 + 任務加碼 4%);加碼部分每月上限 NT$1,000(與國內共用)" },
       { category: "悠遊卡自動加值", rate: 5.0, cap: 500, period: "monthly", expiry: "2026-06-30", tier: "大戶 Plus", channels: ["交通"], note: "大戶 Plus 5% 上限 500 元/月(大戶等級為 3%、上限 100 元)" },
     ],
   },

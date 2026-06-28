@@ -10,7 +10,7 @@
 - **管理卡片**:新增 / 編輯 / 刪除信用卡,可設定發卡銀行與代表色。
 - **回饋規則**:每張卡可設定多條規則(類別、回饋率 %、回饋上限、計算週期、**活動到期日**、**適用通路**、**所屬方案/等級**、備註)。
 - **方案 / 等級切換**:很多卡同時只有一種狀態生效(大戶卡的大大/大戶/大戶Plus、CUBE 切換的權益、玉山的簡單選/任意選/UP選)。在卡片設定選「目前方案/等級」,App 只計生效那層,其餘自動隱藏、也不進搜尋與額度計算。
-- **範本一鍵加入**:內建台灣常見卡片範本(國泰 CUBE、台新太陽卡、玉山 Unicard、星展傳說對決、永豐 SPORT / 三井 / 大戶),可直接加入再微調。
+- **範本一鍵加入**:內建台灣常見卡片範本(國泰 CUBE、台新 Richart 卡、玉山 Unicard、星展傳說對決、永豐 SPORT / 三井 / 大戶),可直接加入再微調。
 - **記一筆消費**:選卡 + 類別 + 金額,自動換算回饋,即時預覽記錄後的剩餘額度。
 - **剩餘額度計算**:每條規則顯示本期已賺回饋、剩餘額度與進度條,並提示「再刷多少可拿滿」。
 - **活動到期提醒**:顯示距活動到期剩餘天數,14 天內轉為警示色,過期後標記並不計入剩餘額度。
@@ -86,12 +86,12 @@ card-rewards-tracker/
 
 ## 🔗 範本資料來源
 
-範本卡片的回饋數字為 **2026 上半年** 整理,各家方案變動頻繁(多數活動於 2026/06/30 到期),請以官方公告為準:
+範本卡片的回饋數字依官網公告整理至 **2026/6 月底**,各家方案變動頻繁(到期日不一:CUBE 與玉山至 2026/12/31、台新 Richart 至 2027/3/31、星展與永豐 SPORT 已更新為 2026 下半年新制、三井與大戶為 2026 上半年方案),請以官方公告為準:
 
 | 卡片 | 官方 / 參考連結 |
 |------|------|
 | 國泰 CUBE 卡 | https://www.cathay-cube.com.tw/cathaybk/personal/product/credit-card/cards/cube-list |
-| 台新 太陽卡(已整併為 Richart 卡) | https://www.taishinbank.com.tw/TSB/personal/common/important-notice/TSBankImportantNotice-001346/ |
+| 台新 Richart 卡(整併原太陽卡/玫瑰卡/@GoGo/FlyGo 等,7 大刷最高 3.8%,活動至 2027/3/31) | https://www.taishinbank.com.tw/TSB/personal/credit/intro/overview/future/ab46dfa7-5d88-11f1-b50f-0050568c09e3 |
 | 玉山 Unicard | https://www.esunbank.com/zh-tw/personal/credit-card/intro/bank-card/unicard |
 | 星展 傳說對決聯名卡 | https://www.dbs.com.tw/personal-zh/cards/dbs-aov/index.html |
 | 永豐 SPORT 卡 | https://bank.sinopac.com/sinopacBT/personal/credit-card/introduction/bankcard/sportcard.html |

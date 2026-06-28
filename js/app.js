@@ -117,13 +117,24 @@ const PRESETS = [
     ],
   },
   {
-    name: "台新 太陽卡", issuer: "台新銀行", color: "#f97316",
+    // 原太陽卡/玫瑰卡/@GoGo/FlyGo/玫瑰Giving/大買家聯名卡已整併為「台新 Richart 卡」
+    // 活動期間 2026/7/1–2027/3/31,7 大刷切換方案最高 3.8%
+    name: "台新 Richart 卡", issuer: "台新銀行", color: "#f97316", defaultTier: "LEVEL 2 · 設定扣繳",
     rules: [
-      { category: "Pay 著刷(行動支付)", rate: 3.8, cap: null, period: "monthly", expiry: null, channels: ["行動支付"], note: "綁台新 Pay 最高 3.8%、LINE Pay 2.3%。太陽卡已整併為 Richart 卡,每日可切換方案 1 次" },
-      { category: "天天刷(超商/量販/交通/加油/藥妝)", rate: 3.3, cap: null, period: "monthly", expiry: null, channels: ["超商", "超市量販", "交通", "加油", "藥妝"], note: "需於 Richart Life App 切換為此方案" },
-      { category: "好饗刷(餐飲/外送/訂房)", rate: 3.3, cap: null, period: "monthly", expiry: null, channels: ["餐飲", "外送"], note: "需切換為此方案" },
-      { category: "玩旅刷(海外/航空/旅行社)", rate: 3.3, cap: null, period: "monthly", expiry: null, channels: ["旅遊海外"], note: "海外消費;需切換為此方案" },
-      { category: "數趣刷(網購/影音/遊戲)", rate: 3.3, cap: null, period: "monthly", expiry: null, channels: ["網購", "影音", "遊戲數位"], note: "需切換為此方案" },
+      // ---- Pay著刷:回饋率依「卡友身分升級」LEVEL 1/2 而不同 ----
+      { category: "Pay著刷(台新Pay / 台新Pay+)", rate: 3.8, cap: null, period: "monthly", expiry: "2027-03-31", tier: "LEVEL 2 · 設定扣繳", channels: ["行動支付"], note: "台新Pay/台新Pay+綁定 3.8%(台新Pay+ 日韓再免 1.5% 國外手續費)。需設定台新帳戶自動扣繳卡費(LEVEL 2)。每日 23:59 前於 Richart Life App 切換方案,每日限 1 次、依正卡人歸戶擇一" },
+      { category: "Pay著刷(LINE Pay)", rate: 2.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "LEVEL 2 · 設定扣繳", channels: ["行動支付"], note: "LINE Pay 綁定 2.3%(LEVEL 2)。四大超商、繳稅費等不回饋" },
+      { category: "Pay著刷(未設定扣繳)", rate: 1.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "LEVEL 1 · 核卡即享", channels: ["行動支付"], note: "未設定台新帳戶自動扣繳時(LEVEL 1),Pay著刷僅 1.3%。新申辦核卡 60 天內免設定即享 LEVEL 2 最高 3.8%" },
+      // ---- 以下方案不分身分等級皆享(tier 空一律生效),仍需於 App 切換為該方案 ----
+      { category: "天天刷(超商量販/交通/加油充電/藥妝)", rate: 3.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["超商", "超市量販", "交通", "加油", "藥妝"], note: "全家/7-11 限台新Pay;家樂福、大買家、臺鐵、高鐵、台灣大車隊、Uber、中油直營、寶雅、康是美、屈臣氏、大樹藥局等。需切換為此方案" },
+      { category: "大筆刷(百貨/Outlet/居家/時尚)", rate: 3.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["百貨", "三井"], note: "新光三越、遠百、SOGO、微風、台北101、誠品、京站、MITSUI OUTLET、華泰名品城、IKEA、特力屋、宜得利、UNIQLO、GU、ZARA、NET 等。需切換為此方案" },
+      { category: "好饗刷(餐飲/外送/娛樂/飯店)", rate: 3.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["餐飲", "外送"], note: "全臺餐飲(不含餐券)、王品瘋Pay、Uber Eats、Foodpanda、拓元/年代/寬宏售票、FunNow、晶華/雲朗/萬豪等指定飯店、錢櫃/好樂迪等KTV。需切換為此方案" },
+      { category: "數趣刷(網購/影音/遊戲/AI)", rate: 3.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["網購", "影音", "遊戲數位"], note: "蝦皮、momo、酷澎、PChome、淘寶、Netflix、Disney+、Steam、PlayStation、Nintendo、線上課程(Hahow 等)、AI 服務(ChatGPT、Claude、Notion、Canva、Perplexity)。需切換為此方案" },
+      { category: "玩旅刷(海外/航空/訂房/旅行社)", rate: 3.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["旅遊海外"], note: "海外消費(含線上、歐洲)、海外交通(Uber/Grab/SUICA 等)、中華/長榮/星宇等航空、Klook/KKday/Agoda/Booking 訂房、雄獅/易遊網等旅行社。需切換為此方案" },
+      { category: "假日刷(節假日不限通路)", rate: 2.0, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["一般消費"], note: "國定例假日(不含天災假)不限通路 2%(含保費、含 LINE Pay 綁定)。四大超商、繳稅費等不回饋。需切換為此方案" },
+      // ---- 不需切換、不分身分等級 ----
+      { category: "保費(一次付清)", rate: 1.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: [], note: "刷卡繳保費一次付清最高 1.3%,免切換免登錄、不分身分等級。不含國外保險、躉繳、投資型、彈性繳保費、分期 0 利率" },
+      { category: "一般消費", rate: 0.3, cap: null, period: "monthly", expiry: "2027-03-31", tier: "", channels: ["一般消費"], note: "非指定通路一般消費 0.3% 台新Point,無上限,不分身分等級。回饋為台新Point(信用卡),效期 2 年" },
     ],
   },
   {
